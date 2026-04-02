@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сводный отчёт — Contab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0c10;
+  --surface: #141418;
+  --surface2: #1c1c22;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0ede8;
+  --muted: #7a7a8a;
+  --accent: #f06090;
+  --success: #60f0a0;
+  --danger: #f06060;
+  --warn: #f0c060;
+
+  --orion:  #c8f060;
+  --kepler: #f0c060;
+  --mir:    #60c8f0;
+  --luna:   #c060f0;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(240,96,144,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Header */
+.header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(12,12,16,0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 800;
+}
+.logo span { color: var(--accent); }
+.header-center {
+  display: flex; align-items: center; gap: 12px;
+}
+.header-badge {
+  background: rgba(240,96,144,0.1);
+  border: 1px solid rgba(240,96,144,0.25);
+  color: var(--accent);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px;
+}
+.month-selector {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px;
+}
+.month-selector select {
+  background: transparent; border: none;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: 13px; outline: none; cursor: pointer;
+}
+.month-selector select option { background: var(--surface2); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.btn-sm {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Onest', sans-serif;
+  font-size: 12px; padding: 6px 12px;
+  border-radius: 8px; cursor: pointer; transition: all 0.2s;
+}
+.btn-sm:hover { color: var(--text); }
+.btn-logout { }
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+/* Stats bar */
+.stats-bar {
+  display: flex; gap: 1px;
+  border-bottom: 1px solid var(--border);
+  background: var(--border);
+  overflow-x: auto;
+}
+.stat-item {
+  background: var(--surface);
+  flex: 1; min-width: 140px;
+  padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.stat-label { font-size: 11px; color: var(--muted); font-weight: 300; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; }
+.stat-sub { font-size: 11px; color: var(--muted); }
+
+/* Filters */
+.filters-bar {
+  padding: 12px 24px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.filter-label { font-size: 12px; color: var(--muted); }
+.team-filter {
+  display: flex; gap: 6px;
+}
+.team-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Onest', sans-serif;
+  font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.team-pill.active {
+  border-color: var(--pill-color);
+  color: var(--pill-color);
+  background: rgba(0,0,0,0.2);
+}
+.search-filter {
+  margin-left: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: 13px; outline: none; width: 200px;
+}
+.search-filter:focus { border-color: var(--accent); }
+
+/* Table wrapper */
+.table-wrap {
+  overflow: auto;
+  padding: 0 0 40px;
+}
+.table-wrap::-webkit-scrollbar { height: 6px; width: 6px; }
+.table-wrap::-webkit-scrollbar-track { background: transparent; }
+.table-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px;
+  font-size: 12px;
+}
+thead th {
+  position: sticky; top: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 10px 12px;
+  text-align: left; white-space: nowrap;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600;
+  color: var(--muted); letter-spacing: 0.05em;
+}
+thead th:first-child {
+  position: sticky; left: 0; z-index: 10;
+  background: var(--surface);
+  min-width: 240px;
+}
+thead th:nth-child(2) {
+  position: sticky; left: 240px; z-index: 10;
+  background: var(--surface);
+  min-width: 80px;
+}
+.deadline-row {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.deadline-row td {
+  padding: 5px 12px;
+  font-size: 10px; color: var(--muted);
+  border-right: 1px solid var(--border);
+  text-align: center;
+  font-weight: 300;
+}
+.deadline-row td:first-child, .deadline-row td:nth-child(2) {
+  position: sticky;
+  background: var(--surface);
+  text-align: left;
+}
+.deadline-row td:first-child { left: 0; z-index: 2; }
+.deadline-row td:nth-child(2) { left: 240px; z-index: 2; }
+
+/* Team separator */
+.team-sep td {
+  padding: 8px 12px 4px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.team-sep td:first-child {
+  position: sticky; left: 0; z-index: 2;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+tbody tr:hover { background: var(--surface); }
+
+td {
+  border-right: 1px solid var(--border);
+  padding: 0;
+  vertical-align: middle;
+}
+td:first-child {
+  position: sticky; left: 0; z-index: 2;
+  background: var(--bg);
+  padding: 8px 12px;
+  font-size: 12px; line-height: 1.4;
+  min-width: 240px;
+}
+tbody tr:hover td:first-child { background: var(--surface); }
+td:nth-child(2) {
+  position: sticky; left: 240px; z-index: 2;
+  background: var(--bg);
+  padding: 6px 12px;
+  min-width: 80px;
+  text-align: center;
+}
+tbody tr:hover td:nth-child(2) { background: var(--surface); }
+
+.cell {
+  display: flex; align-items: center; justify-content: center;
+  height: 40px; padding: 4px 8px;
+  text-align: center;
+}
+.cell-empty {
+  width: 8px; height: 8px;
+  border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.1);
+  margin: 0 auto;
+}
+.cell-done {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; height: 100%;
+}
+.cell-date {
+  font-size: 11px;
+  color: var(--success);
+  font-weight: 500;
+  text-decoration: none;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.cell-date:hover { text-decoration: underline; }
+.cell-date.overdue { color: var(--warn); }
+.cell-file-icon { font-size: 9px; color: var(--muted); }
+
+/* progress badge */
+.prog-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px; font-weight: 500;
+  white-space: nowrap;
+}
+.prog-full   { background: rgba(96,240,160,0.12); color: var(--success); }
+.prog-half   { background: rgba(240,192,96,0.12); color: var(--warn); }
+.prog-none   { background: rgba(255,255,255,0.05); color: var(--muted); }
+
+/* Loading */
+.loading-overlay {
+  position: fixed; inset: 0;
+  background: rgba(12,12,16,0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 400;
+}
+.loading-overlay.hidden { display: none; }
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Settings panel */
+.settings-panel {
+  display: none;
+  position: fixed; top: 60px; right: 0; bottom: 0;
+  width: 340px; z-index: 100;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  padding: 24px;
+  overflow-y: auto;
+  animation: slideLeft 0.2s ease;
+}
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.settings-panel.open { display: block; }
+.settings-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 700;
+  margin-bottom: 20px;
+}
+.settings-section {
+  margin-bottom: 24px;
+}
+.settings-section h3 {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 12px;
+}
+.settings-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: 13px; outline: none;
+  margin-bottom: 8px;
+}
+.settings-input:focus { border-color: var(--accent); }
+.settings-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: 13px; outline: none;
+  margin-bottom: 8px; cursor: pointer;
+}
+.btn-add {
+  width: 100%; padding: 10px;
+  background: var(--accent);
+  border: none; border-radius: 8px;
+  color: #0c0c10;
+  font-family: 'Onest', sans-serif;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.btn-add:hover { opacity: 0.85; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 20px;
+  font-size: 14px; font-weight: 500;
+  opacity: 0; pointer-events: none;
+  transition: all 0.3s; z-index: 500;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(96,240,160,0.3); color: var(--success); }
+.toast.error   { border-color: rgba(240,96,96,0.3);  color: var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<header class="header">
+  <div class="logo">Con<span>tab</span></div>
+  <div class="header-center">
+    <div class="header-badge">Руководитель</div>
+    <div class="month-selector">
+      <span style="font-size:12px;color:var(--muted)">Период:</span>
+      <select id="month-sel" onchange="loadData()"></select>
+      <select id="year-sel"  onchange="loadData()"></select>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-sm" onclick="toggleSettings()">⚙ Настройки</button>
+    <button class="btn-sm btn-logout" onclick="logout()">Выйти</button>
+  </div>
+</header>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-label">Всего отчётов</div>
+    <div class="stat-value" id="s-total">—</div>
+    <div class="stat-sub">за период</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Сдано</div>
+    <div class="stat-value" style="color:var(--success)" id="s-done">—</div>
+    <div class="stat-sub" id="s-pct">—</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Не сдано</div>
+    <div class="stat-value" style="color:var(--muted)" id="s-pending">—</div>
+    <div class="stat-sub">ожидают</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Просрочено</div>
+    <div class="stat-value" style="color:var(--danger)" id="s-overdue">—</div>
+    <div class="stat-sub">истёк срок</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Компаний</div>
+    <div class="stat-value" id="s-companies">—</div>
+    <div class="stat-sub">в 4 командах</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filters-bar">
+  <span class="filter-label">Команда:</span>
+  <div class="team-filter" id="team-filters">
+    <button class="team-pill active" style="--pill-color:#f0ede8" data-team="all" onclick="setTeam('all',this)">Все</button>
+    <button class="team-pill" style="--pill-color:var(--orion)"  data-team="Орион"  onclick="setTeam('Орион',this)">Орион</button>
+    <button class="team-pill" style="--pill-color:var(--kepler)" data-team="Кеплер" onclick="setTeam('Кеплер',this)">Кеплер</button>
+    <button class="team-pill" style="--pill-color:var(--mir)"    data-team="Мир"    onclick="setTeam('Мир',this)">Мир</button>
+    <button class="team-pill" style="--pill-color:var(--luna)"   data-team="Луна-9" onclick="setTeam('Луна-9',this)">Луна-9</button>
+  </div>
+  <input class="search-filter" type="text" placeholder="Поиск компании..." id="search" oninput="renderTable()">
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+  <table id="report-table">
+    <thead id="thead"></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<!-- Settings Panel -->
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-title">Настройки системы</div>
+
+  <div class="settings-section">
+    <h3>Добавить тип отчёта</h3>
+    <input class="settings-input" type="text" id="new-rt-name" placeholder="Название отчёта">
+    <input class="settings-input" type="number" id="new-rt-deadline" placeholder="Срок (число месяца)" min="1" max="31">
+    <button class="btn-add" onclick="addReportType()">Добавить тип</button>
+  </div>
+
+  <div class="settings-section">
+    <h3>Добавить компанию</h3>
+    <select class="settings-select" id="new-co-team">
+      <option value="Орион">Орион</option>
+      <option value="Кеплер">Кеплер</option>
+      <option value="Мир">Мир</option>
+      <option value="Луна-9">Луна-9</option>
+    </select>
+    <input class="settings-input" type="text" id="new-co-name" placeholder="Название компании">
+    <button class="btn-add" onclick="addCompany()">Добавить компанию</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ▼▼▼ URL вашего Apps Script Web App ▼▼▼
+const API_URL = 'ВАША_ССЫЛКА_НА_WEB_APP';
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+const TEAM_ORDER = ['Орион','Кеплер','Мир','Луна-9'];
+const TEAM_COLORS = { 'Орион':'#c8f060','Кеплер':'#f0c060','Мир':'#60c8f0','Луна-9':'#c060f0' };
+
+let allCompanies = {};
+let reportTypes  = [];
+let reportDeadlines = {};
+let records = {};
+let activeTeam = 'all';
+
+window.addEventListener('DOMContentLoaded', async () => {
+  if (sessionStorage.getItem('auth') !== 'ok' || sessionStorage.getItem('team') !== 'admin') {
+    window.location.href = 'index.html';
+    return;
+  }
+  initMonthSelector();
+  await loadConfig();
+  await loadData();
+  showOverlay(false);
+});
+
+function initMonthSelector() {
+  const mSel = document.getElementById('month-sel');
+  const ySel = document.getElementById('year-sel');
+  const months = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                   'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  months.forEach((m,i) => {
+    const o = document.createElement('option');
+    o.value = i+1; o.textContent = m;
+    mSel.appendChild(o);
+  });
+  const now = new Date();
+  mSel.value = now.getMonth() + 1;
+  const curY = now.getFullYear();
+  for (let y = curY-1; y <= curY+1; y++) {
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y;
+    ySel.appendChild(o);
+  }
+  ySel.value = curY;
+}
+
+async function loadConfig() {
+  const res = await fetch(`${API_URL}?action=getConfig`);
+  const data = await res.json();
+  allCompanies   = data.companies || {};
+  reportTypes    = data.reportTypes || [];
+  reportDeadlines = data.reportDeadlines || {};
+}
+
+async function loadData() {
+  showOverlay(true);
+  const month = document.getElementById('month-sel').value;
+  const year  = document.getElementById('year-sel').value;
+  try {
+    const res = await fetch(`${API_URL}?action=getData&month=${month}&year=${year}`);
+    const data = await res.json();
+    records = {};
+    (data.records || []).forEach(r => {
+      records[`${r.company}|${r.reportType}`] = r;
+    });
+    renderTable();
+    renderStats();
+  } catch(e) {
+    showToast('Ошибка загрузки: ' + e.message, 'error');
+  } finally {
+    showOverlay(false);
+  }
+}
+
+function setTeam(team, btn) {
+  activeTeam = team;
+  document.querySelectorAll('.team-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const month = parseInt(document.getElementById('month-sel').value);
+  const year  = parseInt(document.getElementById('year-sel').value);
+  const today = new Date();
+
+  // Header
+  const thead = document.getElementById('thead');
+  thead.innerHTML = `<tr>
+    <th>Компания</th>
+    <th>Прогресс</th>
+    ${reportTypes.map(rt => `<th title="${rt}">${rt.length > 8 ? rt.slice(0,8)+'…' : rt}</th>`).join('')}
+  </tr>
+  <tr class="deadline-row">
+    <td>Срок</td>
+    <td></td>
+    ${reportTypes.map(rt => {
+      const d = reportDeadlines[rt];
+      return `<td>${d ? `до ${d}-го` : '—'}</td>`;
+    }).join('')}
+  </tr>`;
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  const teams = activeTeam === 'all' ? TEAM_ORDER : [activeTeam];
+
+  teams.forEach(team => {
+    const cos = (allCompanies[team] || []).filter(c => !q || c.toLowerCase().includes(q));
+    if (!cos.length) return;
+
+    // Team separator
+    const sep = document.createElement('tr');
+    sep.className = 'team-sep';
+    sep.style.color = TEAM_COLORS[team];
+    sep.innerHTML = `<td colspan="${reportTypes.length + 2}">${team}</td>`;
+    tbody.appendChild(sep);
+
+    cos.forEach(company => {
+      const done  = reportTypes.filter(rt => records[`${company}|${rt}`]).length;
+      const total = reportTypes.length;
+      const pct   = total ? Math.round(done/total*100) : 0;
+      const progClass = pct === 100 ? 'prog-full' : pct >= 50 ? 'prog-half' : 'prog-none';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${company}</td>
+        <td><span class="prog-badge ${progClass}">${done}/${total}</span></td>
+        ${reportTypes.map(rt => {
+          const key = `${company}|${rt}`;
+          const rec = records[key];
+          if (!rec?.date) return `<td><div class="cell"><div class="cell-empty"></div></div></td>`;
+
+          const d = reportDeadlines[rt];
+          let overdue = false;
+          if (d) {
+            const sub = new Date(rec.date);
+            const deadline = new Date(sub.getFullYear(), sub.getMonth(), parseInt(d) + 1);
+            overdue = sub > deadline;
+          }
+
+          const dateStr = formatDate(rec.date);
+          const href = rec.fileUrl ? `href="${rec.fileUrl}" target="_blank"` : '';
+          return `<td><div class="cell"><div class="cell-done">
+            <a class="cell-date ${overdue ? 'overdue' : ''}" ${href} title="${rec.fileName || ''}">${dateStr}</a>
+            ${rec.fileUrl ? `<div class="cell-file-icon">⬡ файл</div>` : ''}
+          </div></div></td>`;
+        }).join('')}`;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function renderStats() {
+  const month = parseInt(document.getElementById('month-sel').value);
+  const year  = parseInt(document.getElementById('year-sel').value);
+  const today = new Date();
+
+  const totalCos = Object.values(allCompanies).flat().length;
+  const totalPossible = totalCos * reportTypes.length;
+  const done = Object.keys(records).length;
+  const pct  = totalPossible ? Math.round(done/totalPossible*100) : 0;
+
+  let overdue = 0;
+  Object.entries(records).forEach(([key, rec]) => {
+    const rt = key.split('|')[1];
+    const d  = reportDeadlines[rt];
+    if (d && rec.date) {
+      const sub = new Date(rec.date);
+      const deadline = new Date(sub.getFullYear(), sub.getMonth(), parseInt(d) + 1);
+      if (sub > deadline) overdue++;
+    }
+  });
+
+  document.getElementById('s-total').textContent    = totalPossible;
+  document.getElementById('s-done').textContent     = done;
+  document.getElementById('s-pct').textContent      = pct + '% выполнено';
+  document.getElementById('s-pending').textContent  = totalPossible - done;
+  document.getElementById('s-overdue').textContent  = overdue;
+  document.getElementById('s-companies').textContent = totalCos;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return isNaN(dt) ? d : dt.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit' });
+}
+
+async function addReportType() {
+  const name = document.getElementById('new-rt-name').value.trim();
+  const deadline = document.getElementById('new-rt-deadline').value.trim();
+  if (!name) { showToast('Введите название', 'error'); return; }
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'addReportType', name, deadline })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Тип "${name}" добавлен`, 'success');
+      document.getElementById('new-rt-name').value = '';
+      document.getElementById('new-rt-deadline').value = '';
+      await loadConfig();
+      renderTable();
+    }
+  } catch(e) { showToast('Ошибка: ' + e.message, 'error'); }
+}
+
+async function addCompany() {
+  const team = document.getElementById('new-co-team').value;
+  const company = document.getElementById('new-co-name').value.trim();
+  if (!company) { showToast('Введите название компании', 'error'); return; }
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'addCompany', team, company })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Компания добавлена в "${team}"`, 'success');
+      document.getElementById('new-co-name').value = '';
+      await loadConfig();
+      renderTable();
+    }
+  } catch(e) { showToast('Ошибка: ' + e.message, 'error'); }
+}
+
+function toggleSettings() {
+  document.getElementById('settings-panel').classList.toggle('open');
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast show ${type}`;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+function showOverlay(show) {
+  document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+}
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contab — Система отчётности</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0c10;
+  --surface: #141418;
+  --surface2: #1c1c22;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0ede8;
+  --muted: #7a7a8a;
+  --accent: #c8f060;
+  --accent2: #60c8f0;
+  --danger: #f06060;
+
+  --orion:  #c8f060;
+  --kepler: #f0c060;
+  --mir:    #60c8f0;
+  --luna:   #c060f0;
+  --admin:  #f06090;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Ambient background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(200,240,96,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(96,200,240,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Grid texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  padding: 24px;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.logo-mark {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.logo-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.logo-title span {
+  color: var(--accent);
+}
+.logo-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 300;
+}
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.team-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  overflow: hidden;
+  text-align: left;
+}
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--team-color);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.team-card:hover {
+  border-color: var(--team-color);
+  transform: translateY(-2px);
+  background: var(--surface2);
+}
+.team-card:hover::before { opacity: 1; }
+
+.team-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--team-color);
+  display: inline-block;
+  margin-bottom: 14px;
+  box-shadow: 0 0 12px var(--team-color);
+}
+.team-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+  margin-bottom: 4px;
+}
+.team-count {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.admin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  --team-color: var(--admin);
+}
+.admin-card:hover {
+  border-color: var(--admin);
+  background: var(--surface2);
+}
+.admin-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: rgba(240,96,144,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.admin-text .title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.admin-text .sub {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+/* Modal */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(12,12,16,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-backdrop.active { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 360px;
+  position: relative;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity:0; transform: scale(0.96) translateY(8px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.modal-accent {
+  height: 3px;
+  border-radius: 2px;
+  margin-bottom: 24px;
+  background: var(--team-color, var(--accent));
+}
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.modal p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.field input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.field input:focus {
+  border-color: var(--modal-accent, var(--accent));
+}
+
+.modal-error {
+  font-size: 13px;
+  color: var(--danger);
+  margin-top: 8px;
+  min-height: 20px;
+  display: none;
+}
+.modal-error.show { display: block; }
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Onest', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--modal-accent, var(--accent));
+  color: #0c0c10;
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { color: var(--text); }
+
+.footer {
+  text-align: center;
+  margin-top: 32px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+    <div class="logo-mark">Система отчётности</div>
+    <div class="logo-title">Con<span>tab</span></div>
+    <div class="logo-sub">Выберите вашу команду для входа</div>
+  </div>
+
+  <div class="teams-grid">
+    <div class="team-card" style="--team-color: var(--orion)" onclick="openModal('Орион','orion',25)">
+      <div class="team-dot"></div>
+      <span class="team-name">Орион</span>
+      <span class="team-count">25 компаний</span>
+    </div>
+    <div class="team-card" style="--team-color: var(--kepler)" onclick="openModal('Кеплер','kepler',28)">
+      <div class="team-dot"></div>
+      <span class="team-name">Кеплер</span>
+      <span class="team-count">28 компаний</span>
+    </div>
+    <div class="team-card" style="--team-color: var(--mir)" onclick="openModal('Мир','mir',14)">
+      <div class="team-dot"></div>
+      <span class="team-name">Мир</span>
+      <span class="team-count">14 компаний</span>
+    </div>
+    <div class="team-card" style="--team-color: var(--luna)" onclick="openModal('Луна-9','luna',26)">
+      <div class="team-dot"></div>
+      <span class="team-name">Луна-9</span>
+      <span class="team-count">26 компаний</span>
+    </div>
+  </div>
+
+  <div class="admin-card" onclick="openModal('Руководитель','admin',0)">
+    <div class="admin-icon">⬡</div>
+    <div class="admin-text">
+      <div class="title">Сводный отчёт</div>
+      <div class="sub">Доступ для руководителя — все команды</div>
+    </div>
+  </div>
+
+  <div class="footer">Contab Reporting System · <span id="cur-date"></span></div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-accent" id="modal-accent-bar"></div>
+    <h2 id="modal-title">Вход</h2>
+    <p id="modal-sub">Введите пароль для доступа</p>
+    <div class="field">
+      <label>Пароль</label>
+      <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')tryLogin()">
+    </div>
+    <div class="modal-error" id="pw-error">Неверный пароль</div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" id="login-btn" onclick="tryLogin()">Войти</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ▼▼▼ ПАРОЛИ — меняйте здесь ▼▼▼
+const PASSWORDS = {
+  orion:  'orion2024',
+  kepler: 'kepler2024',
+  mir:    'mir2024',
+  luna:   'luna2024',
+  admin:  'admin2024'
+};
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+const COLORS = {
+  orion: '#c8f060', kepler: '#f0c060',
+  mir: '#60c8f0', luna: '#c060f0', admin: '#f06090'
+};
+
+let currentTeam = null;
+
+function openModal(name, key, count) {
+  currentTeam = key;
+  document.getElementById('modal-title').textContent = name;
+  document.getElementById('modal-sub').textContent = count
+    ? `Команда · ${count} компаний`
+    : 'Доступ для руководителя';
+  document.getElementById('modal-accent-bar').style.background = COLORS[key];
+  document.getElementById('login-btn').style.background = COLORS[key];
+  document.getElementById('pw-input').style.borderColor = 'transparent';
+  document.getElementById('pw-error').classList.remove('show');
+  document.getElementById('pw-input').value = '';
+  document.getElementById('modal').classList.add('active');
+  setTimeout(() => document.getElementById('pw-input').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  currentTeam = null;
+}
+
+function tryLogin() {
+  const pw = document.getElementById('pw-input').value;
+  if (pw === PASSWORDS[currentTeam]) {
+    sessionStorage.setItem('team', currentTeam);
+    sessionStorage.setItem('auth', 'ok');
+    if (currentTeam === 'admin') {
+      window.location.href = 'dashboard.html';
+    } else {
+      window.location.href = 'cabinet.html';
+    }
+  } else {
+    document.getElementById('pw-error').classList.add('show');
+    document.getElementById('pw-input').select();
+  }
+}
+
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.getElementById('cur-date').textContent = new Date().toLocaleDateString('ru-RU', {
+  day: 'numeric', month: 'long', year: 'numeric'
+});
+</script>
+</body>
+</html>

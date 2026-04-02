@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кабинет команды — Contab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0c10;
+  --surface: #141418;
+  --surface2: #1c1c22;
+  --surface3: #242430;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0ede8;
+  --muted: #7a7a8a;
+  --accent: #c8f060;
+  --danger: #f06060;
+  --success: #60f0a0;
+
+  --tc: var(--accent); /* team color — переопределяется в JS */
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  min-height: 100vh;
+}
+
+/* Ambient */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(200,240,96,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  transition: background 0.5s;
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(12,12,16,0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+.logo span { color: var(--tc); }
+.team-badge {
+  background: rgba(200,240,96,0.1);
+  border: 1px solid rgba(200,240,96,0.2);
+  color: var(--tc);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  transition: all 0.3s;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 12px;
+}
+.month-selector select {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+.month-selector select option { background: var(--surface2); }
+.btn-logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Onest', sans-serif;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+/* Main layout */
+.main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: calc(100vh - 60px);
+}
+
+/* Left panel — company list */
+.sidebar {
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px 0;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sidebar-header {
+  padding: 0 20px 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.search-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: 13px;
+  outline: none;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: var(--tc); }
+
+.company-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.company-item:hover { background: var(--surface); }
+.company-item.active {
+  background: var(--surface2);
+  border-left: 2px solid var(--tc);
+}
+.company-name {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.4;
+  flex: 1;
+}
+.company-progress {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.progress-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.progress-dot.done { background: var(--success); }
+
+/* Right panel — report form */
+.content {
+  overflow-y: auto;
+  padding: 32px;
+}
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.empty-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  gap: 12px;
+}
+.empty-icon { font-size: 48px; opacity: 0.3; }
+.empty-text { font-size: 14px; font-weight: 300; }
+
+.company-header {
+  margin-bottom: 28px;
+}
+.company-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.company-header p {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.report-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.report-card:hover {
+  border-color: rgba(200,240,96,0.2);
+  background: var(--surface2);
+}
+.report-card.submitted {
+  border-color: rgba(96,240,160,0.25);
+}
+.report-card.submitted::after {
+  content: '✓';
+  position: absolute;
+  top: 12px; right: 14px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(96,240,160,0.15);
+  color: var(--success);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.report-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding-right: 28px;
+}
+.report-deadline {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.report-deadline.overdue { color: var(--danger); }
+.report-status {
+  font-size: 12px;
+  font-weight: 500;
+}
+.report-status.done { color: var(--success); }
+.report-status.pending { color: var(--muted); }
+
+/* Submit Modal */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(12,12,16,0.85);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-backdrop.active { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  animation: slideIn 0.2s ease;
+}
+@keyframes slideIn {
+  from { opacity:0; transform: translateY(16px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.modal-top-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--tc);
+  margin-bottom: 24px;
+}
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.modal-company {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.field input[type=date],
+.field input[type=text] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  color-scheme: dark;
+}
+.field input:focus { border-color: var(--tc); }
+
+/* File drop zone */
+.file-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.file-zone:hover, .file-zone.dragover {
+  border-color: var(--tc);
+  background: rgba(200,240,96,0.03);
+}
+.file-zone input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.file-zone-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.5; }
+.file-zone-text { font-size: 13px; color: var(--muted); font-weight: 300; }
+.file-zone-name { font-size: 13px; color: var(--tc); font-weight: 500; margin-top: 6px; }
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+.btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Onest', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--tc);
+  color: #0c0c10;
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { color: var(--text); }
+
+.spinner {
+  display: none;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(12,12,16,0.3);
+  border-top-color: #0c0c10;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s;
+  z-index: 300;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.success { border-color: rgba(96,240,160,0.3); color: var(--success); }
+.toast.error   { border-color: rgba(240,96,96,0.3);  color: var(--danger); }
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12,12,16,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 400;
+}
+.loading-overlay.hidden { display: none; }
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--tc);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<header class="header">
+  <div class="header-left">
+    <div class="logo">Con<span>tab</span></div>
+    <div class="team-badge" id="team-badge">...</div>
+  </div>
+  <div class="header-right">
+    <div class="month-selector">
+      <span style="font-size:12px;color:var(--muted)">Период:</span>
+      <select id="month-sel" onchange="loadData()"></select>
+      <select id="year-sel" onchange="loadData()"></select>
+    </div>
+    <button class="btn-logout" onclick="logout()">Выйти</button>
+  </div>
+</header>
+
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Компании</div>
+      <input class="search-input" type="text" placeholder="Поиск..." id="search" oninput="filterCompanies()">
+    </div>
+    <div id="company-list"></div>
+  </aside>
+
+  <main class="content" id="content">
+    <div class="empty-state">
+      <div class="empty-icon">◈</div>
+      <div class="empty-text">Выберите компанию слева</div>
+    </div>
+  </main>
+</div>
+
+<!-- Submit Modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-top-bar"></div>
+    <h2 id="modal-report-name">НДФЛ</h2>
+    <div class="modal-company" id="modal-company-name">ООО «...»</div>
+
+    <div class="field">
+      <label>Дата отправки отчёта</label>
+      <input type="date" id="report-date" />
+    </div>
+
+    <div class="field">
+      <label>Файл подтверждения</label>
+      <div class="file-zone" id="file-zone">
+        <input type="file" id="file-input" onchange="handleFile(this)">
+        <div class="file-zone-icon">⬆</div>
+        <div class="file-zone-text">Нажмите или перетащите файл сюда</div>
+        <div class="file-zone-name" id="file-name-display"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitReport()">
+        <span id="submit-label">Отправить</span>
+        <div class="spinner" id="submit-spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ▼▼▼ URL вашего Apps Script Web App (вставьте после деплоя) ▼▼▼
+const API_URL = 'ВАША_ССЫЛКА_НА_WEB_APP';
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+const TEAM_COLORS = {
+  orion: '#c8f060', kepler: '#f0c060',
+  mir: '#60c8f0', luna: '#c060f0'
+};
+const TEAM_NAMES = {
+  orion: 'Орион', kepler: 'Кеплер', mir: 'Мир', luna: 'Луна-9'
+};
+
+let currentTeam = '';
+let companies = [];
+let reportTypes = [];
+let reportDeadlines = {};
+let records = {};     // { "Компания|Тип" : { date, fileUrl, fileName } }
+let selectedCompany = null;
+let selectedReport = null;
+let selectedFile = null;
+
+// ─── Init ────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const auth = sessionStorage.getItem('auth');
+  const team = sessionStorage.getItem('team');
+  if (auth !== 'ok' || !team || team === 'admin') {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  currentTeam = team;
+  const color = TEAM_COLORS[team] || '#c8f060';
+  document.documentElement.style.setProperty('--tc', color);
+  document.getElementById('team-badge').textContent = TEAM_NAMES[team] || team;
+  document.getElementById('team-badge').style.cssText =
+    `background: ${color}18; border-color: ${color}40; color: ${color}`;
+
+  initMonthSelector();
+  await loadConfig();
+  await loadData();
+  showOverlay(false);
+});
+
+function initMonthSelector() {
+  const mSel = document.getElementById('month-sel');
+  const ySel = document.getElementById('year-sel');
+  const months = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                   'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  months.forEach((m, i) => {
+    const o = document.createElement('option');
+    o.value = i + 1; o.textContent = m;
+    mSel.appendChild(o);
+  });
+  const now = new Date();
+  mSel.value = now.getMonth() + 1;
+
+  const curY = now.getFullYear();
+  for (let y = curY - 1; y <= curY + 1; y++) {
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y;
+    ySel.appendChild(o);
+  }
+  ySel.value = curY;
+}
+
+async function loadConfig() {
+  try {
+    const res = await fetch(`${API_URL}?action=getConfig`);
+    const data = await res.json();
+    reportTypes = data.reportTypes || [];
+    reportDeadlines = data.reportDeadlines || {};
+    const allCompanies = data.companies || {};
+    companies = allCompanies[TEAM_NAMES[currentTeam]] || [];
+    renderCompanyList();
+  } catch(e) {
+    showToast('Ошибка загрузки конфига: ' + e.message, 'error');
+  }
+}
+
+async function loadData() {
+  showOverlay(true);
+  const month = document.getElementById('month-sel').value;
+  const year  = document.getElementById('year-sel').value;
+  try {
+    const res = await fetch(`${API_URL}?action=getData&team=${TEAM_NAMES[currentTeam]}&month=${month}&year=${year}`);
+    const data = await res.json();
+    records = {};
+    (data.records || []).forEach(r => {
+      records[`${r.company}|${r.reportType}`] = { date: r.date, fileUrl: r.fileUrl, fileName: r.fileName };
+    });
+    renderCompanyList();
+    if (selectedCompany) renderReports(selectedCompany);
+  } catch(e) {
+    showToast('Ошибка загрузки данных', 'error');
+  } finally {
+    showOverlay(false);
+  }
+}
+
+// ─── Company list ────────────────────────────────────────────
+function renderCompanyList() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const list = document.getElementById('company-list');
+  list.innerHTML = '';
+
+  const filtered = companies.filter(c => c.toLowerCase().includes(q));
+  filtered.forEach(c => {
+    const done  = reportTypes.filter(rt => records[`${c}|${rt}`]).length;
+    const total = reportTypes.length;
+    const pct   = total ? Math.round(done / total * 100) : 0;
+
+    const div = document.createElement('div');
+    div.className = 'company-item' + (c === selectedCompany ? ' active' : '');
+    div.innerHTML = `
+      <div class="company-name">${c}</div>
+      <div class="company-progress">
+        <span class="progress-dot ${done > 0 ? 'done' : ''}"></span>${done}/${total}
+      </div>`;
+    div.onclick = () => selectCompany(c);
+    list.appendChild(div);
+  });
+}
+
+function filterCompanies() { renderCompanyList(); }
+
+function selectCompany(name) {
+  selectedCompany = name;
+  renderCompanyList();
+  renderReports(name);
+}
+
+// ─── Reports grid ────────────────────────────────────────────
+function renderReports(company) {
+  const month = document.getElementById('month-sel').value;
+  const year  = document.getElementById('year-sel').value;
+  const content = document.getElementById('content');
+
+  const monthName = document.getElementById('month-sel')
+    .options[document.getElementById('month-sel').selectedIndex].text;
+
+  content.innerHTML = `
+    <div class="company-header">
+      <h1>${company}</h1>
+      <p>${monthName} ${year} · ${reportTypes.length} типов отчётов</p>
+    </div>
+    <div class="reports-grid" id="reports-grid"></div>`;
+
+  const grid = document.getElementById('reports-grid');
+  const today = new Date();
+
+  reportTypes.forEach(rt => {
+    const key = `${company}|${rt}`;
+    const rec = records[key];
+    const deadline = reportDeadlines[rt];
+    const isSubmitted = !!rec;
+
+    let deadlineLabel = '';
+    let deadlineClass = '';
+    if (deadline) {
+      const deadlineDate = new Date(year, parseInt(month) - 1, parseInt(deadline) + 1);
+      deadlineLabel = `Срок: ${deadline} ${monthName.toLowerCase()}`;
+      if (!isSubmitted && today > deadlineDate) {
+        deadlineClass = 'overdue';
+        deadlineLabel += ' — просрочен';
+      }
+    }
+
+    const card = document.createElement('div');
+    card.className = 'report-card' + (isSubmitted ? ' submitted' : '');
+    card.innerHTML = `
+      <div class="report-name">${rt}</div>
+      ${deadline ? `<div class="report-deadline ${deadlineClass}">${deadlineLabel}</div>` : ''}
+      <div class="report-status ${isSubmitted ? 'done' : 'pending'}">
+        ${isSubmitted
+          ? `<a href="${rec.fileUrl}" target="_blank" style="color:var(--success);text-decoration:none" title="Открыть файл">
+              Сдан ${formatDate(rec.date)}
+             </a>`
+          : 'Ожидает отправки'}
+      </div>`;
+    card.onclick = () => openModal(company, rt, rec);
+    grid.appendChild(card);
+  });
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return isNaN(dt) ? d : dt.toLocaleDateString('ru-RU');
+}
+
+// ─── Submit Modal ────────────────────────────────────────────
+function openModal(company, reportType, existing) {
+  selectedReport = reportType;
+  selectedFile = null;
+  document.getElementById('modal-report-name').textContent = reportType;
+  document.getElementById('modal-company-name').textContent = company;
+  document.getElementById('file-name-display').textContent = '';
+  document.getElementById('file-input').value = '';
+
+  const today = new Date();
+  const fmt = d => d.toISOString().split('T')[0];
+  document.getElementById('report-date').value = existing?.date
+    ? fmt(new Date(existing.date))
+    : fmt(today);
+
+  document.getElementById('modal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  selectedFile = null;
+}
+
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Drag & drop
+const zone = document.getElementById('file-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) setFile(file);
+});
+
+function handleFile(input) {
+  if (input.files[0]) setFile(input.files[0]);
+}
+function setFile(file) {
+  selectedFile = file;
+  document.getElementById('file-name-display').textContent = file.name;
+}
+
+async function submitReport() {
+  const date = document.getElementById('report-date').value;
+  if (!date) { showToast('Укажите дату', 'error'); return; }
+
+  setSubmitting(true);
+
+  try {
+    let fileData = null;
+    let fileName = null;
+    let fileType = null;
+
+    if (selectedFile) {
+      fileData = await fileToBase64(selectedFile);
+      fileName = selectedFile.name;
+      fileType = selectedFile.type || 'application/octet-stream';
+    }
+
+    const month = document.getElementById('month-sel').value;
+    const year  = document.getElementById('year-sel').value;
+
+    const body = {
+      action: 'submitReport',
+      team: TEAM_NAMES[currentTeam],
+      company: selectedCompany,
+      reportType: selectedReport,
+      date,
+      fileData,
+      fileName,
+      fileType,
+      month: parseInt(month),
+      year: parseInt(year)
+    };
+
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      records[`${selectedCompany}|${selectedReport}`] = {
+        date, fileUrl: data.fileUrl, fileName
+      };
+      closeModal();
+      renderReports(selectedCompany);
+      renderCompanyList();
+      showToast('Отчёт сохранён!', 'success');
+    } else {
+      showToast('Ошибка: ' + (data.error || 'неизвестная'), 'error');
+    }
+  } catch(e) {
+    showToast('Ошибка отправки: ' + e.message, 'error');
+  } finally {
+    setSubmitting(false);
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = e => res(e.target.result.split(',')[1]);
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+}
+
+function setSubmitting(on) {
+  document.getElementById('submit-btn').disabled = on;
+  document.getElementById('submit-label').style.display = on ? 'none' : 'inline';
+  document.getElementById('submit-spinner').style.display = on ? 'block' : 'none';
+}
+
+// ─── Helpers ─────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+function showOverlay(show) {
+  document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>
