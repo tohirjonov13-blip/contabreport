@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Кабинет команды — Contab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:      #F2F1EC;
@@ -26,7 +26,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Onest', sans-serif;
+  font-family: 'Inter', sans-serif;
   min-height: 100vh;
 }
 
@@ -93,7 +93,7 @@ body::before {
   background: transparent;
   border: none;
   color: var(--text);
-  font-family: 'Onest', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   outline: none;
   cursor: pointer;
@@ -103,7 +103,7 @@ body::before {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
-  font-family: 'Onest', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   padding: 6px 12px;
   border-radius: 8px;
@@ -149,7 +149,7 @@ body::before {
   border-radius: 8px;
   padding: 8px 12px;
   color: var(--text);
-  font-family: 'Onest', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   outline: none;
 }
@@ -178,20 +178,33 @@ body::before {
   flex: 1;
 }
 .company-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.company-progress-label {
   font-size: 11px;
   color: var(--muted);
   white-space: nowrap;
-  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
-.progress-dot {
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--muted);
-  margin-right: 4px;
-  vertical-align: middle;
+.company-progress-bar {
+  width: 48px;
+  height: 3px;
+  background: var(--surface3);
+  border-radius: 2px;
+  overflow: hidden;
 }
-.progress-dot.done { background: var(--success); }
+.company-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--tc);
+  transition: width 0.3s ease;
+}
+.company-progress-fill.full { background: var(--success); }
+.company-progress-fill.zero { background: var(--muted); opacity: 0.4; }
 
 /* Right panel — report form */
 .content {
@@ -209,7 +222,7 @@ body::before {
   margin-bottom: 24px;
 }
 .team-ov-header h2 {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 22px; font-weight: 700;
   margin-bottom: 4px;
 }
@@ -230,7 +243,7 @@ body::before {
   text-align: center;
 }
 .ov-kpi-val {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 30px; font-weight: 700;
   margin-bottom: 4px;
   line-height: 1;
@@ -298,7 +311,7 @@ body::before {
   margin-bottom: 28px;
 }
 .company-header h1 {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 4px;
@@ -346,7 +359,7 @@ body::before {
   font-weight: 700;
 }
 .report-name {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 8px;
@@ -380,7 +393,7 @@ body::before {
   display: block; margin: 16px 0 32px;
   background: transparent; border: 1px dashed rgba(98,0,160,0.3);
   color: #6200A0; border-radius: 12px; padding: 12px 20px;
-  font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 500;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
   cursor: pointer; transition: all 0.2s; width: 100%;
 }
 .btn-add-unplanned:hover {
@@ -421,7 +434,7 @@ body::before {
   margin-bottom: 24px;
 }
 .modal h2 {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 4px;
@@ -457,7 +470,7 @@ body::before {
   border-radius: 10px;
   padding: 11px 14px;
   color: var(--text);
-  font-family: 'Onest', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
@@ -501,7 +514,7 @@ body::before {
   padding: 12px;
   border-radius: 10px;
   border: none;
-  font-family: 'Onest', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -859,7 +872,7 @@ function renderTeamOverview() {
       const dlYear = parseInt(mm) < month ? year + 1 : year;
       const dl = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
       const daysLeft = Math.round((dl - today) / (1000 * 60 * 60 * 24));
-      if (daysLeft <= 14) dueSoon.push({ rt, daysLeft, dateStr: `${dd}.${mm}` });
+      if (daysLeft <= 30) dueSoon.push({ rt, daysLeft, dateStr: `${dd}.${mm}` });
     });
     if (dueSoon.length) {
       dueSoon.sort((a, b) => a.daysLeft - b.daysLeft);
@@ -884,7 +897,7 @@ function renderTeamOverview() {
           </div>
         </div>`;
       }).join('')
-    : '<div class="ov-empty">Нет отчётов с дедлайном в ближайшие 14 дней</div>';
+    : '<div class="ov-empty">Нет отчётов с дедлайном в ближайшие 30 дней</div>';
 
   content.innerHTML = `
     <div class="team-ov">
@@ -913,7 +926,7 @@ function renderTeamOverview() {
       <div class="ov-progress-wrap">
         <div class="ov-progress-bar" style="width:${pct}%"></div>
       </div>
-      <div class="ov-section-title">Ближайшие дедлайны (14 дней)</div>
+      <div class="ov-section-title">Ближайшие дедлайны (30 дней)</div>
       <div class="ov-deadline-list">${upcomingHtml}</div>
     </div>`;
 }
@@ -932,10 +945,15 @@ function renderCompanyList() {
 
     const div = document.createElement('div');
     div.className = 'company-item' + (c === selectedCompany ? ' active' : '');
+    const pct = total ? Math.round(done / total * 100) : 0;
+    const fillClass = pct === 100 ? 'full' : pct === 0 ? 'zero' : '';
     div.innerHTML = `
       <div class="company-name">${c}</div>
       <div class="company-progress">
-        <span class="progress-dot ${done > 0 ? 'done' : ''}"></span>${done}/${total}
+        <div class="company-progress-label">${done}/${total}</div>
+        <div class="company-progress-bar">
+          <div class="company-progress-fill ${fillClass}" style="width:${pct}%"></div>
+        </div>
       </div>`;
     div.onclick = () => selectCompany(c);
     list.appendChild(div);
@@ -1125,28 +1143,31 @@ async function submitReport() {
       year: parseInt(year)
     };
 
-    const res = await fetchWithTimeout(API_URL, {
+    // mode:'no-cors' — единственный способ отправить POST к Apps Script с GitHub Pages.
+    // Ответ будет opaque (нечитаемый), поэтому обновляем данные перезагрузкой.
+    await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      mode: 'no-cors',
+      credentials: 'omit',
       body: JSON.stringify(body)
     });
-    const data = await res.json();
 
-    if (data.success) {
-      records[`${selectedCompany}|${selectedReport}`] = {
-        company: selectedCompany, team: TEAM_NAMES[currentTeam],
-        reportType: selectedReport, date,
-        fileUrl: data.fileUrl, fileName, isUnplanned: false
-      };
-      closeModal();
-      renderReports(selectedCompany);
-      renderCompanyList();
-      showToast('Отчёт сохранён!', 'success');
-    } else {
-      showToast('Ошибка: ' + (data.error || 'неизвестная'), 'error');
-    }
+    // Оптимистично обновляем UI сразу
+    records[`${selectedCompany}|${selectedReport}`] = {
+      company: selectedCompany, team: TEAM_NAMES[currentTeam],
+      reportType: selectedReport, date,
+      fileUrl: '', fileName: fileName || '', isUnplanned: false
+    };
+    closeModal();
+    renderReports(selectedCompany);
+    renderCompanyList();
+    showToast('Отчёт отправлен — синхронизируем…', 'success');
+
+    // Перезагружаем данные из таблицы через 4 сек чтобы получить актуальный fileUrl
+    setTimeout(() => loadData(), 4000);
+
   } catch(e) {
-    showToast('Ошибка отправки: ' + e.message, 'error');
+    showToast('Ошибка: ' + e.message, 'error');
   } finally {
     setSubmitting(false);
   }
@@ -1255,28 +1276,22 @@ async function submitUnplanned() {
   }
 
   try {
-    const res = await fetchWithTimeout(API_URL, {
+    await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      mode: 'no-cors',
+      credentials: 'omit',
       body: JSON.stringify({
         action: 'submitReport',
         team: TEAM_NAMES[currentTeam],
         company: unplannedCompany,
-        reportType,
-        label,
+        reportType, label,
         date, fileData, fileName, fileType,
-        month, year,
-        isUnplanned: true
+        month, year, isUnplanned: true
       })
     });
-    const data = await res.json();
-    if (data.success) {
-      closeUnplannedModal();
-      await loadData();
-      showToast('Внеплановый отчёт сохранён!', 'success');
-    } else {
-      showToast('Ошибка: ' + (data.error || 'неизвестная'), 'error');
-    }
+    closeUnplannedModal();
+    showToast('Внеплановый отчёт отправлен — синхронизируем…', 'success');
+    setTimeout(() => loadData(), 4000);
   } catch(e) {
     showToast('Ошибка: ' + e.message, 'error');
   }
