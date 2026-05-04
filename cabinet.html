@@ -588,7 +588,7 @@ body::before {
 
 <header class="header">
   <div class="header-left">
-    <img src="logo%2002.png" alt="Contab" class="logo-img">
+    <img src="logo02.png" alt="Contab" class="logo-img">
     <div class="team-badge" id="team-badge">...</div>
   </div>
   <div class="header-right">
@@ -695,6 +695,13 @@ body::before {
 <script>
 const API_URL = CONTAB_CONFIG.apiUrl;
 
+function fetchWithTimeout(url, options = {}, ms = 10000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...options, signal: ctrl.signal })
+    .finally(() => clearTimeout(timer));
+}
+
 const TEAM_COLORS = {
   orion: '#3A7A00', kepler: '#8B5C00',
   mir: '#005FA0', alphac: '#6200A0'
@@ -759,7 +766,7 @@ function initMonthSelector() {
 
 async function loadConfig() {
   try {
-    const res = await fetch(`${API_URL}?action=getConfig`);
+    const res = await fetchWithTimeout(`${API_URL}?action=getConfig`);
     const data = await res.json();
     reportTypes      = data.reportTypes || [];
     reportMatrix     = data.reportMatrix || {};
@@ -787,7 +794,7 @@ async function loadData() {
   const month = document.getElementById('month-sel').value;
   const year  = document.getElementById('year-sel').value;
   try {
-    const res = await fetch(`${API_URL}?action=getData&team=${TEAM_NAMES[currentTeam]}&month=${month}&year=${year}`);
+    const res = await fetchWithTimeout(`${API_URL}?action=getData&team=${TEAM_NAMES[currentTeam]}&month=${month}&year=${year}`);
     const data = await res.json();
     records = {};
     (data.records || []).forEach(r => {
@@ -1113,7 +1120,7 @@ async function submitReport() {
       year: parseInt(year)
     };
 
-    const res = await fetch(API_URL, {
+    const res = await fetchWithTimeout(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -1243,7 +1250,7 @@ async function submitUnplanned() {
   }
 
   try {
-    const res = await fetch(API_URL, {
+    const res = await fetchWithTimeout(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
