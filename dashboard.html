@@ -646,7 +646,28 @@ function getCompanyReports(company) {
 
 function getDeadlineForMonth(reportType, month) {
   const cal = deadlineCalendar[reportType];
-  return (cal && cal[String(month)]) || null;
+  const v   = (cal && cal[String(month)]) || null;
+  // Отбрасываем значения без точки — это числа (Excel serial), не формат dd.MM
+  return (v && v.includes('.')) ? v : null;
+}
+
+// Парсит дату "yyyy-MM-dd" в локальное время (без timezone-смещения)
+function parseLocalDate(str) {
+  if (!str) return null;
+  const parts = String(str).split('-');
+  if (parts.length === 3) return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+// Разбирает "dd.MM" → объект Date в локальном времени
+function parseDeadline(ddmm, month, year) {
+  if (!ddmm || !ddmm.includes('.')) return null;
+  const [dd, mm] = ddmm.split('.');
+  const idd = parseInt(dd), imm = parseInt(mm), iyear = parseInt(year), imonth = parseInt(month);
+  const dlYear = imm < imonth ? iyear + 1 : iyear;
+  return new Date(dlYear, imm - 1, idd);
+}
 }
 
 async function loadData() {
@@ -733,11 +754,9 @@ function renderTable() {
           const d = getDeadlineForMonth(rt, month);
           let overdue = false;
           if (d) {
-            const [dd, mm] = d.split('.');
-            const dlYear = parseInt(mm) < month ? year + 1 : year;
-            const sub      = new Date(rec.date);
-            const deadline = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
-            overdue = sub > deadline;
+            const sub      = parseLocalDate(rec.date);
+            const deadline = parseDeadline(d, month, year);
+            overdue = sub && deadline ? sub > deadline : false;
           }
 
           const dateStr = formatDate(rec.date);
@@ -757,14 +776,11 @@ function calcAvgTiming(month, year) {
   Object.values(allCompanies).flat().forEach(company => {
     getCompanyReports(company).forEach(rt => {
       const rec = records[`${company}|${rt}`];
-      const d = getDeadlineForMonth(rt, month);
+      const d   = getDeadlineForMonth(rt, month);
       if (rec?.date && d) {
-        const [dd, mm] = d.split('.');
-        const dlYear = parseInt(mm) < month ? year + 1 : year;
-        const sub = new Date(rec.date);
-        const dl  = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
-        const delta = Math.round((dl - sub) / (1000 * 60 * 60 * 24));
-        deltas.push(delta);
+        const sub = parseLocalDate(rec.date);
+        const dl  = parseDeadline(d, month, year);
+        if (sub && dl) deltas.push(Math.round((dl - sub) / 86400000));
       }
     });
   });
@@ -790,11 +806,9 @@ function renderTeamOverview() {
           done++;
           const d = getDeadlineForMonth(rt, month);
           if (d) {
-            const [dd, mm] = d.split('.');
-            const dlYear = parseInt(mm) < month ? year + 1 : year;
-            const sub = new Date(rec.date);
-            const dl  = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
-            if (sub > dl) overdue++;
+            const sub = parseLocalDate(rec.date);
+            const dl  = parseDeadline(d, month, year);
+            if (sub && dl && sub > dl) overdue++;
           }
         }
       });
@@ -831,13 +845,11 @@ function renderStats() {
   allCos.forEach(company => {
     getCompanyReports(company).forEach(rt => {
       const rec = records[`${company}|${rt}`];
-      const d = getDeadlineForMonth(rt, month);
+      const d   = getDeadlineForMonth(rt, month);
       if (d && rec?.date) {
-        const [dd, mm] = d.split('.');
-        const dlYear   = parseInt(mm) < month ? year + 1 : year;
-        const sub      = new Date(rec.date);
-        const deadline = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
-        if (sub > deadline) overdue++;
+        const sub = parseLocalDate(rec.date);
+        const dl  = parseDeadline(d, month, year);
+        if (sub && dl && sub > dl) overdue++;
       }
     });
   });
@@ -885,8 +897,7 @@ function renderUpcomingPanel() {
         const d = getDeadlineForMonth(rt, month);
         if (!d) return;
         const [dd, mm] = d.split('.');
-        const dlYear   = parseInt(mm) < month ? year + 1 : year;
-        const deadline = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
+        const deadline = parseDeadline(d, month, year);
         const daysLeft = Math.round((deadline - today) / 86400000);
         if (daysLeft <= 30) items.push({ team, company, rt, daysLeft, dateStr: d });
       });

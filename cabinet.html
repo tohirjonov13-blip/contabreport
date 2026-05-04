@@ -670,7 +670,7 @@ body::before {
 
     <div class="field">
       <label>Тип отчёта</label>
-      <select id="unplan-type" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Onest',sans-serif;font-size:14px;outline:none" onchange="toggleCustomType()">
+      <select id="unplan-type" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none" onchange="toggleCustomType()">
         <option value="">— выберите тип —</option>
       </select>
     </div>
@@ -804,7 +804,23 @@ function getCompanyReports(company) {
 
 function getDeadlineForMonth(reportType, month) {
   const cal = deadlineCalendar[reportType];
-  return (cal && cal[String(month)]) || null;
+  const v   = (cal && cal[String(month)]) || null;
+  return (v && v.includes('.')) ? v : null;
+}
+
+function parseLocalDate(str) {
+  if (!str) return null;
+  const parts = String(str).split('-');
+  if (parts.length === 3) return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+function parseDeadline(ddmm, month, year) {
+  if (!ddmm || !ddmm.includes('.')) return null;
+  const [dd, mm] = ddmm.split('.');
+  const imm = parseInt(mm), iyear = parseInt(year), imonth = parseInt(month);
+  return new Date(imm < imonth ? iyear + 1 : iyear, imm - 1, parseInt(dd));
 }
 
 async function loadData() {
@@ -847,11 +863,9 @@ function renderTeamOverview() {
         done++;
         const d = getDeadlineForMonth(rt, month);
         if (d) {
-          const [dd, mm] = d.split('.');
-          const dlYear = parseInt(mm) < month ? year + 1 : year;
-          const sub = new Date(rec.date);
-          const dl  = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
-          if (sub > dl) overdue++;
+          const sub = parseLocalDate(rec.date);
+          const dl  = parseDeadline(d, month, year);
+          if (sub && dl && sub > dl) overdue++;
         }
       }
     });
@@ -868,11 +882,10 @@ function renderTeamOverview() {
       if (records[`${company}|${rt}`]) return;
       const d = getDeadlineForMonth(rt, month);
       if (!d) return;
-      const [dd, mm] = d.split('.');
-      const dlYear = parseInt(mm) < month ? year + 1 : year;
-      const dl = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
-      const daysLeft = Math.round((dl - today) / (1000 * 60 * 60 * 24));
-      if (daysLeft <= 30) dueSoon.push({ rt, daysLeft, dateStr: `${dd}.${mm}` });
+      const dl = parseDeadline(d, month, year);
+      if (!dl) return;
+      const daysLeft = Math.round((dl - today) / 86400000);
+      if (daysLeft <= 30) dueSoon.push({ rt, daysLeft, dateStr: d });
     });
     if (dueSoon.length) {
       dueSoon.sort((a, b) => a.daysLeft - b.daysLeft);
@@ -997,14 +1010,18 @@ function renderReports(company) {
 
     let deadlineLabel = '';
     let deadlineClass = '';
-    if (deadlineDDMM) {
+    if (deadlineDDMM && deadlineDDMM.includes('.')) {
       const [dd, mm] = deadlineDDMM.split('.');
-      const deadlineYear = parseInt(mm) < parseInt(month) ? parseInt(year) + 1 : parseInt(year);
-      const deadlineDate = new Date(deadlineYear, parseInt(mm) - 1, parseInt(dd));
+      const idd = parseInt(dd), imm = parseInt(mm), imonth = parseInt(month), iyear = parseInt(year);
+      const deadlineYear = imm < imonth ? iyear + 1 : iyear;
+      const deadlineDate = new Date(deadlineYear, imm - 1, idd);
       deadlineLabel = `Срок: ${dd}.${mm}`;
-      if (!isSubmitted && today > deadlineDate) {
-        deadlineClass = 'overdue';
-        deadlineLabel += ' — просрочен';
+      if (!isSubmitted) {
+        const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        if (todayMidnight > deadlineDate) {
+          deadlineClass = 'overdue';
+          deadlineLabel += ' — просрочен';
+        }
       }
     } else {
       deadlineLabel = 'Без дедлайна в этом месяце';
@@ -1028,7 +1045,7 @@ function renderReports(company) {
   });
 
   // Внеплановые отчёты
-  const unplanned = Object.values(records).filter(r => r.company === company && r.isUnplanned);
+  const unplanned = Object.values(records).filter(r => r.company === company && (r.isUnplanned === true || r.isUnplanned === 'да'));
   if (unplanned.length) {
     const upHeader = document.createElement('div');
     upHeader.className = 'unplanned-header';
