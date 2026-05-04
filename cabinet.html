@@ -58,13 +58,11 @@ body::before {
   align-items: center;
   gap: 16px;
 }
-.logo {
-  font-family: 'Syne', sans-serif;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text);
+.logo-img {
+  height: 30px;
+  width: auto;
+  display: block;
 }
-.logo span { color: var(--tc); }
 .team-badge {
   background: rgba(200,240,96,0.1);
   border: 1px solid rgba(200,240,96,0.2);
@@ -590,7 +588,7 @@ body::before {
 
 <header class="header">
   <div class="header-left">
-    <div class="logo">Con<span>tab</span></div>
+    <img src="logo%2002.png" alt="Contab" class="logo-img">
     <div class="team-badge" id="team-badge">...</div>
   </div>
   <div class="header-right">
@@ -793,7 +791,7 @@ async function loadData() {
     const data = await res.json();
     records = {};
     (data.records || []).forEach(r => {
-      records[`${r.company}|${r.reportType}`] = { date: r.date, fileUrl: r.fileUrl, fileName: r.fileName };
+      records[`${r.company}|${r.reportType}`] = r;
     });
     renderCompanyList();
     if (selectedCompany) renderReports(selectedCompany);
@@ -1124,7 +1122,9 @@ async function submitReport() {
 
     if (data.success) {
       records[`${selectedCompany}|${selectedReport}`] = {
-        date, fileUrl: data.fileUrl, fileName
+        company: selectedCompany, team: TEAM_NAMES[currentTeam],
+        reportType: selectedReport, date,
+        fileUrl: data.fileUrl, fileName, isUnplanned: false
       };
       closeModal();
       renderReports(selectedCompany);

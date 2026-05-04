@@ -76,15 +76,11 @@ body::after {
   text-transform: uppercase;
   margin-bottom: 8px;
 }
-.logo-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 36px;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.02em;
-}
-.logo-title span {
-  color: var(--accent);
+.logo-img {
+  height: 60px;
+  width: auto;
+  display: block;
+  margin: 0 auto 2px;
 }
 .logo-sub {
   font-size: 14px;
@@ -307,7 +303,7 @@ body::after {
 <div class="container">
   <div class="logo">
     <div class="logo-mark">Система отчётности</div>
-    <div class="logo-title">Con<span>tab</span></div>
+    <img src="logo%2002.png" alt="Contab" class="logo-img">
     <div class="logo-sub">Выберите вашу команду для входа</div>
   </div>
 
@@ -363,17 +359,8 @@ body::after {
   </div>
 </div>
 
+<script src="config.js"></script>
 <script>
-// ▼▼▼ ПАРОЛИ — меняйте здесь ▼▼▼
-const PASSWORDS = {
-  orion:   'orion2024',
-  kepler:  'kepler2024',
-  mir:     'mir2024',
-  alphac:  'alphac2024',
-  admin:   'admin2024'
-};
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
 const COLORS = {
   orion: '#c8f060', kepler: '#f0c060',
   mir: '#60c8f0', alphac: '#c060f0', admin: '#f06090'
@@ -401,19 +388,46 @@ function closeModal() {
   currentTeam = null;
 }
 
-function tryLogin() {
-  const pw = document.getElementById('pw-input').value;
-  if (pw === PASSWORDS[currentTeam]) {
-    sessionStorage.setItem('team', currentTeam);
-    sessionStorage.setItem('auth', 'ok');
-    if (currentTeam === 'admin') {
-      window.location.href = 'dashboard.html';
+const TEAM_API_NAMES = {
+  orion: 'Орион', kepler: 'Кеплер',
+  mir: 'Мир', alphac: 'AlphaC', admin: 'admin'
+};
+
+async function tryLogin() {
+  const pw  = document.getElementById('pw-input').value;
+  const btn = document.getElementById('login-btn');
+  if (!pw) return;
+
+  btn.disabled = true;
+  btn.textContent = '...';
+  document.getElementById('pw-error').classList.remove('show');
+
+  try {
+    const res = await fetch(CONTAB_CONFIG.apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'login',
+        team: TEAM_API_NAMES[currentTeam],
+        password: pw
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      sessionStorage.setItem('team', currentTeam);
+      sessionStorage.setItem('auth', 'ok');
+      window.location.href = currentTeam === 'admin' ? 'dashboard.html' : 'cabinet.html';
     } else {
-      window.location.href = 'cabinet.html';
+      document.getElementById('pw-error').textContent = 'Неверный пароль';
+      document.getElementById('pw-error').classList.add('show');
+      document.getElementById('pw-input').select();
     }
-  } else {
+  } catch(e) {
+    document.getElementById('pw-error').textContent = 'Ошибка соединения';
     document.getElementById('pw-error').classList.add('show');
-    document.getElementById('pw-input').select();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Войти';
   }
 }
 
