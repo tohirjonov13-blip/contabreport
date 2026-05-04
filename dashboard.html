@@ -8,21 +8,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0c0c10;
-  --surface: #141418;
-  --surface2: #1c1c22;
-  --border: rgba(255,255,255,0.07);
-  --text: #f0ede8;
-  --muted: #7a7a8a;
-  --accent: #f06090;
-  --success: #60f0a0;
-  --danger: #f06060;
-  --warn: #f0c060;
+  --bg:      #F2F1EC;
+  --surface: #FFFFFF;
+  --surface2:#EDECEA;
+  --border:  rgba(30,30,50,0.09);
+  --text:    #1A1828;
+  --muted:   #888898;
+  --accent:  #A0005A;
+  --success: #1B9B52;
+  --danger:  #D43A3A;
+  --warn:    #8B5C00;
 
-  --orion:  #c8f060;
-  --kepler: #f0c060;
-  --mir:    #60c8f0;
-  --luna:   #c060f0;
+  --orion:   #3A7A00;
+  --kepler:  #8B5C00;
+  --mir:     #005FA0;
+  --luna:    #6200A0;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -36,14 +36,14 @@ body::before {
   position: fixed;
   top: -100px; right: -100px;
   width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(240,96,144,0.04) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(160,0,90,0.04) 0%, transparent 70%);
   pointer-events: none;
 }
 
 /* Header */
 .header {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(12,12,16,0.8);
+  background: rgba(242,241,236,0.88);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   padding: 0 32px;
@@ -59,8 +59,8 @@ body::before {
   display: flex; align-items: center; gap: 12px;
 }
 .header-badge {
-  background: rgba(240,96,144,0.1);
-  border: 1px solid rgba(240,96,144,0.25);
+  background: rgba(160,0,90,0.08);
+  border: 1px solid rgba(160,0,90,0.2);
   color: var(--accent);
   font-size: 11px; font-weight: 600;
   letter-spacing: 0.1em; text-transform: uppercase;
@@ -78,10 +78,10 @@ body::before {
   font-family: 'Onest', sans-serif;
   font-size: 13px; outline: none; cursor: pointer;
 }
-.month-selector select option { background: var(--surface2); }
+.month-selector select option { background: var(--surface); }
 .header-right { display: flex; align-items: center; gap: 12px; }
 .btn-sm {
-  background: var(--surface2);
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--muted);
   font-family: 'Onest', sans-serif;
@@ -101,13 +101,49 @@ body::before {
 }
 .stat-item {
   background: var(--surface);
-  flex: 1; min-width: 140px;
+  flex: 1; min-width: 120px;
   padding: 16px 20px;
   display: flex; flex-direction: column; gap: 4px;
 }
 .stat-label { font-size: 11px; color: var(--muted); font-weight: 300; }
 .stat-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; }
 .stat-sub { font-size: 11px; color: var(--muted); }
+
+/* Team overview strip */
+.team-overview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.team-ov-card {
+  background: var(--surface);
+  padding: 12px 20px;
+}
+.team-ov-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700;
+  margin-bottom: 7px;
+}
+.team-ov-progress {
+  height: 3px;
+  background: var(--surface2);
+  border-radius: 2px;
+  margin-bottom: 7px;
+  overflow: hidden;
+}
+.team-ov-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+.team-ov-stats {
+  display: flex; gap: 12px;
+  font-size: 11px; color: var(--muted);
+}
+.team-ov-stat strong { color: var(--text); font-weight: 600; }
+.team-ov-overdue { color: var(--danger); font-weight: 600; }
 
 /* Filters */
 .filters-bar {
@@ -132,7 +168,7 @@ body::before {
 .team-pill.active {
   border-color: var(--pill-color);
   color: var(--pill-color);
-  background: rgba(0,0,0,0.2);
+  background: rgba(30,30,60,0.04);
 }
 .search-filter {
   margin-left: auto;
@@ -247,7 +283,11 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
 }
 .cell-empty {
   width: 8px; height: 8px;
-  border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 50%; border: 1.5px solid rgba(30,30,60,0.15);
+  margin: 0 auto;
+}
+.cell-na {
+  font-size: 11px; color: rgba(30,30,60,0.2);
   margin: 0 auto;
 }
 .cell-done {
@@ -264,7 +304,7 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
   white-space: nowrap;
 }
 .cell-date:hover { text-decoration: underline; }
-.cell-date.overdue { color: var(--warn); }
+.cell-date.overdue { color: var(--danger); }
 .cell-file-icon { font-size: 9px; color: var(--muted); }
 
 /* progress badge */
@@ -275,14 +315,14 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
   font-size: 11px; font-weight: 500;
   white-space: nowrap;
 }
-.prog-full   { background: rgba(96,240,160,0.12); color: var(--success); }
-.prog-half   { background: rgba(240,192,96,0.12); color: var(--warn); }
-.prog-none   { background: rgba(255,255,255,0.05); color: var(--muted); }
+.prog-full   { background: rgba(27,155,82,0.1);  color: var(--success); }
+.prog-half   { background: rgba(139,92,0,0.1);   color: var(--warn); }
+.prog-none   { background: rgba(30,30,60,0.04);  color: var(--muted); }
 
 /* Loading */
 .loading-overlay {
   position: fixed; inset: 0;
-  background: rgba(12,12,16,0.6);
+  background: rgba(220,218,210,0.7);
   display: flex; align-items: center; justify-content: center;
   z-index: 400;
 }
@@ -350,7 +390,7 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
   width: 100%; padding: 10px;
   background: var(--accent);
   border: none; border-radius: 8px;
-  color: #0c0c10;
+  color: #FFFFFF;
   font-family: 'Onest', sans-serif;
   font-size: 13px; font-weight: 500;
   cursor: pointer; transition: opacity 0.2s;
@@ -360,17 +400,18 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
 .toast {
   position: fixed; bottom: 24px; left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: var(--surface2);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px; padding: 14px 20px;
   font-size: 14px; font-weight: 500;
   opacity: 0; pointer-events: none;
   transition: all 0.3s; z-index: 500;
   white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(30,30,60,0.08);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.success { border-color: rgba(96,240,160,0.3); color: var(--success); }
-.toast.error   { border-color: rgba(240,96,96,0.3);  color: var(--danger); }
+.toast.success { border-color: rgba(27,155,82,0.3);  color: var(--success); }
+.toast.error   { border-color: rgba(212,58,58,0.3);  color: var(--danger); }
 </style>
 </head>
 <body>
@@ -422,17 +463,25 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
     <div class="stat-value" id="s-companies">—</div>
     <div class="stat-sub">в 4 командах</div>
   </div>
+  <div class="stat-item">
+    <div class="stat-label">Средний срок</div>
+    <div class="stat-value" id="s-avg">—</div>
+    <div class="stat-sub" id="s-avg-sub">дней до дедлайна</div>
+  </div>
 </div>
+
+<!-- Team overview strip -->
+<div class="team-overview" id="team-overview"></div>
 
 <!-- Filters -->
 <div class="filters-bar">
   <span class="filter-label">Команда:</span>
   <div class="team-filter" id="team-filters">
-    <button class="team-pill active" style="--pill-color:#f0ede8" data-team="all" onclick="setTeam('all',this)">Все</button>
+    <button class="team-pill active" style="--pill-color:var(--text)" data-team="all" onclick="setTeam('all',this)">Все</button>
     <button class="team-pill" style="--pill-color:var(--orion)"  data-team="Орион"  onclick="setTeam('Орион',this)">Орион</button>
     <button class="team-pill" style="--pill-color:var(--kepler)" data-team="Кеплер" onclick="setTeam('Кеплер',this)">Кеплер</button>
     <button class="team-pill" style="--pill-color:var(--mir)"    data-team="Мир"    onclick="setTeam('Мир',this)">Мир</button>
-    <button class="team-pill" style="--pill-color:var(--luna)"   data-team="Луна-9" onclick="setTeam('Луна-9',this)">Луна-9</button>
+    <button class="team-pill" style="--pill-color:var(--luna)"   data-team="AlphaC" onclick="setTeam('AlphaC',this)">AlphaC</button>
   </div>
   <input class="search-filter" type="text" placeholder="Поиск компании..." id="search" oninput="renderTable()">
 </div>
@@ -462,7 +511,7 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
       <option value="Орион">Орион</option>
       <option value="Кеплер">Кеплер</option>
       <option value="Мир">Мир</option>
-      <option value="Луна-9">Луна-9</option>
+      <option value="AlphaC">AlphaC</option>
     </select>
     <input class="settings-input" type="text" id="new-co-name" placeholder="Название компании">
     <button class="btn-add" onclick="addCompany()">Добавить компанию</button>
@@ -471,17 +520,22 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
 
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
 <script>
-// ▼▼▼ URL вашего Apps Script Web App ▼▼▼
-const API_URL = 'https://script.google.com/macros/s/AKfycbxJcQ65AiqxGBJOnm8qgZAnOht17DgFz0rzBvvVv7Kzj25qkOb9BvoKABjbDyQdOv-HOg/exec';
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+const API_URL = CONTAB_CONFIG.apiUrl;
 
-const TEAM_ORDER = ['Орион','Кеплер','Мир','Луна-9'];
-const TEAM_COLORS = { 'Орион':'#c8f060','Кеплер':'#f0c060','Мир':'#60c8f0','Луна-9':'#c060f0' };
+const TEAM_ORDER = ['Орион','Кеплер','Мир','AlphaC'];
+const TEAM_COLORS = {
+  'Орион':  '#3A7A00',
+  'Кеплер': '#8B5C00',
+  'Мир':    '#005FA0',
+  'AlphaC': '#6200A0'
+};
 
 let allCompanies = {};
 let reportTypes  = [];
-let reportDeadlines = {};
+let reportMatrix     = {};
+let deadlineCalendar = {};
 let records = {};
 let activeTeam = 'all';
 
@@ -518,11 +572,22 @@ function initMonthSelector() {
 }
 
 async function loadConfig() {
-  const res = await fetch(`${API_URL}?action=getConfig`);
+  const res  = await fetch(`${API_URL}?action=getConfig`);
   const data = await res.json();
-  allCompanies   = data.companies || {};
-  reportTypes    = data.reportTypes || [];
-  reportDeadlines = data.reportDeadlines || {};
+  allCompanies     = data.companies || {};
+  reportTypes      = data.reportTypes || [];
+  reportMatrix     = data.reportMatrix || {};
+  deadlineCalendar = data.deadlineCalendar || {};
+}
+
+function getCompanyReports(company) {
+  const m = reportMatrix[company];
+  return (m && m.length) ? m : reportTypes;
+}
+
+function getDeadlineForMonth(reportType, month) {
+  const cal = deadlineCalendar[reportType];
+  return (cal && cal[String(month)]) || null;
 }
 
 async function loadData() {
@@ -556,9 +621,7 @@ function renderTable() {
   const q = document.getElementById('search').value.toLowerCase();
   const month = parseInt(document.getElementById('month-sel').value);
   const year  = parseInt(document.getElementById('year-sel').value);
-  const today = new Date();
 
-  // Header
   const thead = document.getElementById('thead');
   thead.innerHTML = `<tr>
     <th>Компания</th>
@@ -569,8 +632,8 @@ function renderTable() {
     <td>Срок</td>
     <td></td>
     ${reportTypes.map(rt => {
-      const d = reportDeadlines[rt];
-      return `<td>${d ? `до ${d}-го` : '—'}</td>`;
+      const d = getDeadlineForMonth(rt, month);
+      return `<td>${d ? `до ${d}` : '—'}</td>`;
     }).join('')}
   </tr>`;
 
@@ -583,7 +646,6 @@ function renderTable() {
     const cos = (allCompanies[team] || []).filter(c => !q || c.toLowerCase().includes(q));
     if (!cos.length) return;
 
-    // Team separator
     const sep = document.createElement('tr');
     sep.className = 'team-sep';
     sep.style.color = TEAM_COLORS[team];
@@ -591,8 +653,9 @@ function renderTable() {
     tbody.appendChild(sep);
 
     cos.forEach(company => {
-      const done  = reportTypes.filter(rt => records[`${company}|${rt}`]).length;
-      const total = reportTypes.length;
+      const required = getCompanyReports(company);
+      const done  = required.filter(rt => records[`${company}|${rt}`]).length;
+      const total = required.length;
       const pct   = total ? Math.round(done/total*100) : 0;
       const progClass = pct === 100 ? 'prog-full' : pct >= 50 ? 'prog-half' : 'prog-none';
 
@@ -601,15 +664,20 @@ function renderTable() {
         <td>${company}</td>
         <td><span class="prog-badge ${progClass}">${done}/${total}</span></td>
         ${reportTypes.map(rt => {
+          if (!required.includes(rt)) {
+            return `<td><div class="cell"><div class="cell-na" title="Не требуется">—</div></div></td>`;
+          }
           const key = `${company}|${rt}`;
           const rec = records[key];
           if (!rec?.date) return `<td><div class="cell"><div class="cell-empty"></div></div></td>`;
 
-          const d = reportDeadlines[rt];
+          const d = getDeadlineForMonth(rt, month);
           let overdue = false;
           if (d) {
-            const sub = new Date(rec.date);
-            const deadline = new Date(sub.getFullYear(), sub.getMonth(), parseInt(d) + 1);
+            const [dd, mm] = d.split('.');
+            const dlYear = parseInt(mm) < month ? year + 1 : year;
+            const sub      = new Date(rec.date);
+            const deadline = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
             overdue = sub > deadline;
           }
 
@@ -625,25 +693,94 @@ function renderTable() {
   });
 }
 
+function calcAvgTiming(month, year) {
+  const deltas = [];
+  Object.values(allCompanies).flat().forEach(company => {
+    getCompanyReports(company).forEach(rt => {
+      const rec = records[`${company}|${rt}`];
+      const d = getDeadlineForMonth(rt, month);
+      if (rec?.date && d) {
+        const [dd, mm] = d.split('.');
+        const dlYear = parseInt(mm) < month ? year + 1 : year;
+        const sub = new Date(rec.date);
+        const dl  = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
+        const delta = Math.round((dl - sub) / (1000 * 60 * 60 * 24));
+        deltas.push(delta);
+      }
+    });
+  });
+  if (!deltas.length) return null;
+  return Math.round(deltas.reduce((a, b) => a + b, 0) / deltas.length);
+}
+
+function renderTeamOverview() {
+  const month = parseInt(document.getElementById('month-sel').value);
+  const year  = parseInt(document.getElementById('year-sel').value);
+  const container = document.getElementById('team-overview');
+  container.innerHTML = '';
+
+  TEAM_ORDER.forEach(team => {
+    const cos = allCompanies[team] || [];
+    let total = 0, done = 0, overdue = 0;
+    cos.forEach(company => {
+      const required = getCompanyReports(company);
+      total += required.length;
+      required.forEach(rt => {
+        const rec = records[`${company}|${rt}`];
+        if (rec?.date) {
+          done++;
+          const d = getDeadlineForMonth(rt, month);
+          if (d) {
+            const [dd, mm] = d.split('.');
+            const dlYear = parseInt(mm) < month ? year + 1 : year;
+            const sub = new Date(rec.date);
+            const dl  = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
+            if (sub > dl) overdue++;
+          }
+        }
+      });
+    });
+    const pct   = total ? Math.round(done / total * 100) : 0;
+    const color = TEAM_COLORS[team];
+    const card  = document.createElement('div');
+    card.className = 'team-ov-card';
+    card.innerHTML = `
+      <div class="team-ov-name" style="color:${color}">${team}</div>
+      <div class="team-ov-progress">
+        <div class="team-ov-bar" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <div class="team-ov-stats">
+        <span class="team-ov-stat"><strong>${done}</strong>/${total} сдано</span>
+        ${overdue ? `<span class="team-ov-overdue">⚠ ${overdue} просрочено</span>` : `<span style="color:var(--success);font-size:11px">${pct}%</span>`}
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
 function renderStats() {
   const month = parseInt(document.getElementById('month-sel').value);
   const year  = parseInt(document.getElementById('year-sel').value);
-  const today = new Date();
 
-  const totalCos = Object.values(allCompanies).flat().length;
-  const totalPossible = totalCos * reportTypes.length;
-  const done = Object.keys(records).length;
+  const allCos = Object.values(allCompanies).flat();
+  const totalCos = allCos.length;
+  const totalPossible = allCos.reduce((sum, c) => sum + getCompanyReports(c).length, 0);
+  const done = allCos.reduce((sum, c) =>
+    sum + getCompanyReports(c).filter(rt => records[`${c}|${rt}`]).length, 0);
   const pct  = totalPossible ? Math.round(done/totalPossible*100) : 0;
 
   let overdue = 0;
-  Object.entries(records).forEach(([key, rec]) => {
-    const rt = key.split('|')[1];
-    const d  = reportDeadlines[rt];
-    if (d && rec.date) {
-      const sub = new Date(rec.date);
-      const deadline = new Date(sub.getFullYear(), sub.getMonth(), parseInt(d) + 1);
-      if (sub > deadline) overdue++;
-    }
+  allCos.forEach(company => {
+    getCompanyReports(company).forEach(rt => {
+      const rec = records[`${company}|${rt}`];
+      const d = getDeadlineForMonth(rt, month);
+      if (d && rec?.date) {
+        const [dd, mm] = d.split('.');
+        const dlYear   = parseInt(mm) < month ? year + 1 : year;
+        const sub      = new Date(rec.date);
+        const deadline = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
+        if (sub > deadline) overdue++;
+      }
+    });
   });
 
   document.getElementById('s-total').textContent    = totalPossible;
@@ -652,6 +789,25 @@ function renderStats() {
   document.getElementById('s-pending').textContent  = totalPossible - done;
   document.getElementById('s-overdue').textContent  = overdue;
   document.getElementById('s-companies').textContent = totalCos;
+
+  const avg    = calcAvgTiming(month, year);
+  const avgEl  = document.getElementById('s-avg');
+  const avgSub = document.getElementById('s-avg-sub');
+  if (avg === null) {
+    avgEl.textContent = '—';
+    avgEl.style.color = '';
+    avgSub.textContent = 'нет данных';
+  } else if (avg >= 0) {
+    avgEl.textContent = avg + ' дн.';
+    avgEl.style.color = 'var(--success)';
+    avgSub.textContent = 'до дедлайна';
+  } else {
+    avgEl.textContent = Math.abs(avg) + ' дн.';
+    avgEl.style.color = 'var(--danger)';
+    avgSub.textContent = 'после дедлайна';
+  }
+
+  renderTeamOverview();
 }
 
 function formatDate(d) {

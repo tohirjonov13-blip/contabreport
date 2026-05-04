@@ -8,18 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0c0c10;
-  --surface: #141418;
-  --surface2: #1c1c22;
-  --surface3: #242430;
-  --border: rgba(255,255,255,0.07);
-  --text: #f0ede8;
-  --muted: #7a7a8a;
-  --accent: #c8f060;
-  --danger: #f06060;
-  --success: #60f0a0;
+  --bg:      #F2F1EC;
+  --surface: #FFFFFF;
+  --surface2:#EDECEA;
+  --surface3:#E6E4DF;
+  --border:  rgba(30,30,50,0.09);
+  --text:    #1A1828;
+  --muted:   #888898;
+  --accent:  #5561FF;
+  --danger:  #D43A3A;
+  --success: #1B9B52;
 
-  --tc: var(--accent); /* team color — переопределяется в JS */
+  --tc: var(--accent);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html { scroll-behavior: smooth; }
@@ -30,15 +30,13 @@ body {
   min-height: 100vh;
 }
 
-/* Ambient */
 body::before {
   content: '';
   position: fixed;
-  top: 0; left: 0;
-  width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(200,240,96,0.05) 0%, transparent 70%);
+  top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(85,97,255,0.06) 0%, transparent 65%);
   pointer-events: none;
-  transition: background 0.5s;
 }
 
 /* Header */
@@ -46,7 +44,7 @@ body::before {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(12,12,16,0.8);
+  background: rgba(242,241,236,0.88);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   padding: 0 32px;
@@ -102,7 +100,7 @@ body::before {
   outline: none;
   cursor: pointer;
 }
-.month-selector select option { background: var(--surface2); }
+.month-selector select option { background: var(--surface); }
 .btn-logout {
   background: transparent;
   border: 1px solid var(--border);
@@ -205,17 +203,98 @@ body::before {
 .content::-webkit-scrollbar { width: 4px; }
 .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-.empty-state {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  gap: 12px;
+/* Team overview dashboard */
+.team-ov {
+  max-width: 800px;
 }
-.empty-icon { font-size: 48px; opacity: 0.3; }
-.empty-text { font-size: 14px; font-weight: 300; }
+.team-ov-header {
+  margin-bottom: 24px;
+}
+.team-ov-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 700;
+  margin-bottom: 4px;
+}
+.team-ov-header p {
+  font-size: 13px; color: var(--muted); font-weight: 300;
+}
+.team-ov-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.ov-kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.ov-kpi-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 30px; font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+.ov-kpi-label {
+  font-size: 11px; color: var(--muted); font-weight: 300;
+}
+.ov-progress-wrap {
+  height: 5px;
+  background: var(--surface2);
+  border-radius: 3px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.ov-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--tc);
+  transition: width 0.5s ease;
+}
+.ov-section-title {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.ov-deadline-list {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ov-deadline-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ov-deadline-item:hover {
+  border-color: var(--tc);
+  background: var(--surface2);
+}
+.ov-deadline-co {
+  font-size: 13px; font-weight: 400;
+}
+.ov-deadline-info {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+.ov-deadline-date {
+  font-size: 11px; color: var(--muted);
+  font-weight: 500;
+}
+.ov-deadline-date.urgent { color: var(--danger); }
+.ov-deadline-types {
+  font-size: 10px; color: var(--muted); font-weight: 300;
+}
+.ov-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 300;
+  padding: 24px 0;
+}
 
 .company-header {
   margin-bottom: 28px;
@@ -252,7 +331,7 @@ body::before {
   background: var(--surface2);
 }
 .report-card.submitted {
-  border-color: rgba(96,240,160,0.25);
+  border-color: rgba(27,155,82,0.2);
 }
 .report-card.submitted::after {
   content: '✓';
@@ -260,7 +339,7 @@ body::before {
   top: 12px; right: 14px;
   width: 22px; height: 22px;
   border-radius: 50%;
-  background: rgba(96,240,160,0.15);
+  background: rgba(27,155,82,0.1);
   color: var(--success);
   font-size: 11px;
   display: flex;
@@ -280,20 +359,42 @@ body::before {
   color: var(--muted);
   margin-bottom: 10px;
 }
-.report-deadline.overdue { color: var(--danger); }
-.report-status {
-  font-size: 12px;
-  font-weight: 500;
-}
-.report-status.done { color: var(--success); }
+.report-deadline.overdue    { color: var(--danger); }
+.report-deadline.no-deadline{ color: var(--muted); font-style: italic; }
+.report-status { font-size: 12px; font-weight: 500; }
+.report-status.done    { color: var(--success); }
 .report-status.pending { color: var(--muted); }
+
+/* Внеплановые отчёты */
+.unplanned-header {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 24px 0 8px;
+}
+.unplanned-card { border-color: rgba(98,0,160,0.2); }
+.unplanned-tag {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #6200A0;
+  background: rgba(98,0,160,0.08); border: 1px solid rgba(98,0,160,0.2);
+  border-radius: 4px; padding: 2px 6px; margin-left: 6px; vertical-align: middle;
+}
+.btn-add-unplanned {
+  display: block; margin: 16px 0 32px;
+  background: transparent; border: 1px dashed rgba(98,0,160,0.3);
+  color: #6200A0; border-radius: 12px; padding: 12px 20px;
+  font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; width: 100%;
+}
+.btn-add-unplanned:hover {
+  background: rgba(98,0,160,0.06); border-color: rgba(98,0,160,0.5);
+}
 
 /* Submit Modal */
 .modal-backdrop {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(12,12,16,0.85);
+  background: rgba(230,228,220,0.88);
   backdrop-filter: blur(10px);
   z-index: 200;
   align-items: center;
@@ -344,6 +445,12 @@ body::before {
   color: var(--muted);
   margin-bottom: 8px;
 }
+.field .field-hint {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 300;
+  margin-top: 5px;
+}
 .field input[type=date],
 .field input[type=text] {
   width: 100%;
@@ -356,7 +463,7 @@ body::before {
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
-  color-scheme: dark;
+  color-scheme: light;
 }
 .field input:focus { border-color: var(--tc); }
 
@@ -372,7 +479,7 @@ body::before {
 }
 .file-zone:hover, .file-zone.dragover {
   border-color: var(--tc);
-  background: rgba(200,240,96,0.03);
+  background: rgba(85,97,255,0.03);
 }
 .file-zone input[type=file] {
   position: absolute;
@@ -382,7 +489,7 @@ body::before {
   width: 100%;
   height: 100%;
 }
-.file-zone-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.5; }
+.file-zone-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.4; }
 .file-zone-text { font-size: 13px; color: var(--muted); font-weight: 300; }
 .file-zone-name { font-size: 13px; color: var(--tc); font-weight: 500; margin-top: 6px; }
 
@@ -404,7 +511,7 @@ body::before {
 }
 .btn-primary {
   background: var(--tc);
-  color: #0c0c10;
+  color: #FFFFFF;
 }
 .btn-primary:hover { opacity: 0.85; }
 .btn-primary:disabled {
@@ -421,8 +528,8 @@ body::before {
 .spinner {
   display: none;
   width: 16px; height: 16px;
-  border: 2px solid rgba(12,12,16,0.3);
-  border-top-color: #0c0c10;
+  border: 2px solid rgba(30,30,60,0.15);
+  border-top-color: #FFFFFF;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
   margin: 0 auto;
@@ -435,7 +542,7 @@ body::before {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: var(--surface2);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px 20px;
@@ -446,19 +553,20 @@ body::before {
   transition: all 0.3s;
   z-index: 300;
   white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(30,30,60,0.08);
 }
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
-.toast.success { border-color: rgba(96,240,160,0.3); color: var(--success); }
-.toast.error   { border-color: rgba(240,96,96,0.3);  color: var(--danger); }
+.toast.success { border-color: rgba(27,155,82,0.3); color: var(--success); }
+.toast.error   { border-color: rgba(212,58,58,0.3); color: var(--danger); }
 
 /* Loading overlay */
 .loading-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(12,12,16,0.6);
+  background: rgba(220,218,210,0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -505,10 +613,7 @@ body::before {
   </aside>
 
   <main class="content" id="content">
-    <div class="empty-state">
-      <div class="empty-icon">◈</div>
-      <div class="empty-text">Выберите компанию слева</div>
-    </div>
+    <!-- filled by renderTeamOverview() on load, replaced by renderReports() on company select -->
   </main>
 </div>
 
@@ -520,8 +625,9 @@ body::before {
     <div class="modal-company" id="modal-company-name">ООО «...»</div>
 
     <div class="field">
-      <label>Дата отправки отчёта</label>
+      <label>Дата фактической отправки отчёта</label>
       <input type="date" id="report-date" />
+      <div class="field-hint">Дата, когда отчёт был реально отправлен в налоговую</div>
     </div>
 
     <div class="field">
@@ -544,26 +650,67 @@ body::before {
   </div>
 </div>
 
+<!-- Модал внепланового отчёта -->
+<div class="modal-backdrop" id="modal-unplanned">
+  <div class="modal">
+    <div class="modal-top-bar" style="background:#6200A0"></div>
+    <h2>Внеплановый отчёт</h2>
+    <p id="unplan-company-name" style="color:var(--muted);font-size:13px;margin-bottom:20px;font-weight:300"></p>
+
+    <div class="field">
+      <label>Тип отчёта</label>
+      <select id="unplan-type" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Onest',sans-serif;font-size:14px;outline:none" onchange="toggleCustomType()">
+        <option value="">— выберите тип —</option>
+      </select>
+    </div>
+
+    <div class="field" id="unplan-custom-field" style="display:none">
+      <label>Название отчёта</label>
+      <input type="text" id="unplan-custom" placeholder="Введите название">
+    </div>
+
+    <div class="field">
+      <label>Дата фактической отправки</label>
+      <input type="date" id="unplan-date" style="color-scheme:light">
+    </div>
+
+    <div class="field">
+      <label>Файл (необязательно)</label>
+      <div class="file-zone" id="unplan-file-zone" onclick="document.getElementById('unplan-file-input').click()">
+        <input type="file" id="unplan-file-input" style="display:none" onchange="handleUnplanFile(this)">
+        <div class="file-zone-icon">📎</div>
+        <div class="file-zone-text">Нажмите чтобы прикрепить файл</div>
+        <div class="file-zone-name" id="unplan-file-name"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeUnplannedModal()">Отмена</button>
+      <button class="btn btn-primary" style="background:#6200A0" onclick="submitUnplanned()">Отправить</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
 <script>
-// ▼▼▼ URL вашего Apps Script Web App (вставьте после деплоя) ▼▼▼
-const API_URL = 'https://script.google.com/macros/s/AKfycbxJcQ65AiqxGBJOnm8qgZAnOht17DgFz0rzBvvVv7Kzj25qkOb9BvoKABjbDyQdOv-HOg/exec';
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+const API_URL = CONTAB_CONFIG.apiUrl;
 
 const TEAM_COLORS = {
-  orion: '#c8f060', kepler: '#f0c060',
-  mir: '#60c8f0', luna: '#c060f0'
+  orion: '#3A7A00', kepler: '#8B5C00',
+  mir: '#005FA0', alphac: '#6200A0'
 };
 const TEAM_NAMES = {
-  orion: 'Орион', kepler: 'Кеплер', mir: 'Мир', luna: 'Луна-9'
+  orion: 'Орион', kepler: 'Кеплер', mir: 'Мир', alphac: 'AlphaC'
 };
 
 let currentTeam = '';
 let companies = [];
-let reportTypes = [];
-let reportDeadlines = {};
-let records = {};     // { "Компания|Тип" : { date, fileUrl, fileName } }
+let reportTypes      = [];
+let reportMatrix     = {};
+let deadlineCalendar = {};
+let records = {};
 let selectedCompany = null;
 let selectedReport = null;
 let selectedFile = null;
@@ -578,11 +725,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   currentTeam = team;
-  const color = TEAM_COLORS[team] || '#c8f060';
+  const color = TEAM_COLORS[team] || '#5561FF';
   document.documentElement.style.setProperty('--tc', color);
   document.getElementById('team-badge').textContent = TEAM_NAMES[team] || team;
   document.getElementById('team-badge').style.cssText =
-    `background: ${color}18; border-color: ${color}40; color: ${color}`;
+    `background: ${color}14; border-color: ${color}35; color: ${color}`;
 
   initMonthSelector();
   await loadConfig();
@@ -616,14 +763,25 @@ async function loadConfig() {
   try {
     const res = await fetch(`${API_URL}?action=getConfig`);
     const data = await res.json();
-    reportTypes = data.reportTypes || [];
-    reportDeadlines = data.reportDeadlines || {};
+    reportTypes      = data.reportTypes || [];
+    reportMatrix     = data.reportMatrix || {};
+    deadlineCalendar = data.deadlineCalendar || {};
     const allCompanies = data.companies || {};
     companies = allCompanies[TEAM_NAMES[currentTeam]] || [];
     renderCompanyList();
   } catch(e) {
     showToast('Ошибка загрузки конфига: ' + e.message, 'error');
   }
+}
+
+function getCompanyReports(company) {
+  const matrix = reportMatrix[company];
+  return (matrix && matrix.length) ? matrix : reportTypes;
+}
+
+function getDeadlineForMonth(reportType, month) {
+  const cal = deadlineCalendar[reportType];
+  return (cal && cal[String(month)]) || null;
 }
 
 async function loadData() {
@@ -639,11 +797,115 @@ async function loadData() {
     });
     renderCompanyList();
     if (selectedCompany) renderReports(selectedCompany);
+    else renderTeamOverview();
   } catch(e) {
     showToast('Ошибка загрузки данных', 'error');
   } finally {
     showOverlay(false);
   }
+}
+
+// ─── Team overview ───────────────────────────────────────────
+function renderTeamOverview() {
+  const month = parseInt(document.getElementById('month-sel').value);
+  const year  = parseInt(document.getElementById('year-sel').value);
+  const monthName = document.getElementById('month-sel')
+    .options[document.getElementById('month-sel').selectedIndex]?.text || '';
+  const today = new Date();
+  const content = document.getElementById('content');
+
+  let total = 0, done = 0, overdue = 0;
+  companies.forEach(c => {
+    const required = getCompanyReports(c);
+    total += required.length;
+    required.forEach(rt => {
+      const rec = records[`${c}|${rt}`];
+      if (rec?.date) {
+        done++;
+        const d = getDeadlineForMonth(rt, month);
+        if (d) {
+          const [dd, mm] = d.split('.');
+          const dlYear = parseInt(mm) < month ? year + 1 : year;
+          const sub = new Date(rec.date);
+          const dl  = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
+          if (sub > dl) overdue++;
+        }
+      }
+    });
+  });
+  const pending = total - done;
+  const pct = total ? Math.round(done / total * 100) : 0;
+
+  // Upcoming: pending reports with deadline within 14 days
+  const upcoming = [];
+  companies.forEach(company => {
+    const required = getCompanyReports(company);
+    const dueSoon = [];
+    required.forEach(rt => {
+      if (records[`${company}|${rt}`]) return;
+      const d = getDeadlineForMonth(rt, month);
+      if (!d) return;
+      const [dd, mm] = d.split('.');
+      const dlYear = parseInt(mm) < month ? year + 1 : year;
+      const dl = new Date(dlYear, parseInt(mm) - 1, parseInt(dd));
+      const daysLeft = Math.round((dl - today) / (1000 * 60 * 60 * 24));
+      if (daysLeft <= 14) dueSoon.push({ rt, daysLeft, dateStr: `${dd}.${mm}` });
+    });
+    if (dueSoon.length) {
+      dueSoon.sort((a, b) => a.daysLeft - b.daysLeft);
+      upcoming.push({ company, reports: dueSoon, minDays: dueSoon[0].daysLeft });
+    }
+  });
+  upcoming.sort((a, b) => a.minDays - b.minDays);
+
+  const upcomingHtml = upcoming.length
+    ? upcoming.map(({ company, reports, minDays }) => {
+        const isUrgent = minDays <= 3;
+        const types = reports.map(r => r.rt).join(', ');
+        const label = minDays < 0
+          ? 'просрочено'
+          : minDays === 0 ? 'сегодня' : minDays + ' дн.';
+        const esc = company.replace(/'/g, "\\'");
+        return `<div class="ov-deadline-item" onclick="selectCompany('${esc}')">
+          <div class="ov-deadline-co">${company}</div>
+          <div class="ov-deadline-info">
+            <div class="ov-deadline-date ${isUrgent ? 'urgent' : ''}">до ${reports[0].dateStr} · ${label}</div>
+            <div class="ov-deadline-types">${reports.length} отч.: ${types.length > 45 ? types.slice(0, 45) + '…' : types}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="ov-empty">Нет отчётов с дедлайном в ближайшие 14 дней</div>';
+
+  content.innerHTML = `
+    <div class="team-ov">
+      <div class="team-ov-header">
+        <h2>${TEAM_NAMES[currentTeam]}</h2>
+        <p>${monthName} ${year} · ${companies.length} компаний</p>
+      </div>
+      <div class="team-ov-kpis">
+        <div class="ov-kpi-card">
+          <div class="ov-kpi-val">${total}</div>
+          <div class="ov-kpi-label">Всего отчётов</div>
+        </div>
+        <div class="ov-kpi-card">
+          <div class="ov-kpi-val" style="color:var(--success)">${done}</div>
+          <div class="ov-kpi-label">Сдано</div>
+        </div>
+        <div class="ov-kpi-card">
+          <div class="ov-kpi-val" style="color:var(--muted)">${pending}</div>
+          <div class="ov-kpi-label">Осталось</div>
+        </div>
+        <div class="ov-kpi-card">
+          <div class="ov-kpi-val" style="color:var(--danger)">${overdue}</div>
+          <div class="ov-kpi-label">Просрочено</div>
+        </div>
+      </div>
+      <div class="ov-progress-wrap">
+        <div class="ov-progress-bar" style="width:${pct}%"></div>
+      </div>
+      <div class="ov-section-title">Ближайшие дедлайны (14 дней)</div>
+      <div class="ov-deadline-list">${upcomingHtml}</div>
+    </div>`;
 }
 
 // ─── Company list ────────────────────────────────────────────
@@ -654,9 +916,9 @@ function renderCompanyList() {
 
   const filtered = companies.filter(c => c.toLowerCase().includes(q));
   filtered.forEach(c => {
-    const done  = reportTypes.filter(rt => records[`${c}|${rt}`]).length;
-    const total = reportTypes.length;
-    const pct   = total ? Math.round(done / total * 100) : 0;
+    const required = getCompanyReports(c);
+    const done  = required.filter(rt => records[`${c}|${rt}`]).length;
+    const total = required.length;
 
     const div = document.createElement('div');
     div.className = 'company-item' + (c === selectedCompany ? ' active' : '');
@@ -687,41 +949,48 @@ function renderReports(company) {
   const monthName = document.getElementById('month-sel')
     .options[document.getElementById('month-sel').selectedIndex].text;
 
+  const required = getCompanyReports(company);
+
   content.innerHTML = `
     <div class="company-header">
       <h1>${company}</h1>
-      <p>${monthName} ${year} · ${reportTypes.length} типов отчётов</p>
+      <p>${monthName} ${year} · ${required.length} отчётов</p>
     </div>
     <div class="reports-grid" id="reports-grid"></div>`;
 
   const grid = document.getElementById('reports-grid');
   const today = new Date();
 
-  reportTypes.forEach(rt => {
+  required.forEach(rt => {
     const key = `${company}|${rt}`;
     const rec = records[key];
-    const deadline = reportDeadlines[rt];
+    const deadlineDDMM = getDeadlineForMonth(rt, month);
     const isSubmitted = !!rec;
 
     let deadlineLabel = '';
     let deadlineClass = '';
-    if (deadline) {
-      const deadlineDate = new Date(year, parseInt(month) - 1, parseInt(deadline) + 1);
-      deadlineLabel = `Срок: ${deadline} ${monthName.toLowerCase()}`;
+    if (deadlineDDMM) {
+      const [dd, mm] = deadlineDDMM.split('.');
+      const deadlineYear = parseInt(mm) < parseInt(month) ? parseInt(year) + 1 : parseInt(year);
+      const deadlineDate = new Date(deadlineYear, parseInt(mm) - 1, parseInt(dd));
+      deadlineLabel = `Срок: ${dd}.${mm}`;
       if (!isSubmitted && today > deadlineDate) {
         deadlineClass = 'overdue';
         deadlineLabel += ' — просрочен';
       }
+    } else {
+      deadlineLabel = 'Без дедлайна в этом месяце';
+      deadlineClass = 'no-deadline';
     }
 
     const card = document.createElement('div');
     card.className = 'report-card' + (isSubmitted ? ' submitted' : '');
     card.innerHTML = `
       <div class="report-name">${rt}</div>
-      ${deadline ? `<div class="report-deadline ${deadlineClass}">${deadlineLabel}</div>` : ''}
+      <div class="report-deadline ${deadlineClass}">${deadlineLabel}</div>
       <div class="report-status ${isSubmitted ? 'done' : 'pending'}">
         ${isSubmitted
-          ? `<a href="${rec.fileUrl}" target="_blank" style="color:var(--success);text-decoration:none" title="Открыть файл">
+          ? `<a href="${rec.fileUrl || '#'}" target="_blank" style="color:var(--success);text-decoration:none" title="Открыть файл">
               Сдан ${formatDate(rec.date)}
              </a>`
           : 'Ожидает отправки'}
@@ -729,6 +998,37 @@ function renderReports(company) {
     card.onclick = () => openModal(company, rt, rec);
     grid.appendChild(card);
   });
+
+  // Внеплановые отчёты
+  const unplanned = Object.values(records).filter(r => r.company === company && r.isUnplanned);
+  if (unplanned.length) {
+    const upHeader = document.createElement('div');
+    upHeader.className = 'unplanned-header';
+    upHeader.textContent = 'Внеплановые отчёты';
+    content.appendChild(upHeader);
+
+    const upGrid = document.createElement('div');
+    upGrid.className = 'reports-grid';
+    unplanned.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'report-card submitted unplanned-card';
+      card.innerHTML = `
+        <div class="report-name">${r.reportType} <span class="unplanned-tag">внеплановый</span></div>
+        <div class="report-status done">
+          <a href="${r.fileUrl || '#'}" target="_blank" style="color:var(--success);text-decoration:none">
+            Сдан ${formatDate(r.date)}
+          </a>
+        </div>`;
+      upGrid.appendChild(card);
+    });
+    content.appendChild(upGrid);
+  }
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn-add-unplanned';
+  addBtn.innerHTML = '+ Внеплановый отчёт';
+  addBtn.onclick = () => openUnplannedModal(company);
+  content.appendChild(addBtn);
 }
 
 function formatDate(d) {
@@ -746,11 +1046,10 @@ function openModal(company, reportType, existing) {
   document.getElementById('file-name-display').textContent = '';
   document.getElementById('file-input').value = '';
 
-  const today = new Date();
   const fmt = d => d.toISOString().split('T')[0];
   document.getElementById('report-date').value = existing?.date
     ? fmt(new Date(existing.date))
-    : fmt(today);
+    : fmt(new Date());
 
   document.getElementById('modal').classList.add('active');
 }
@@ -872,6 +1171,108 @@ function logout() {
   sessionStorage.clear();
   window.location.href = 'index.html';
 }
+
+// ─── Внеплановый отчёт ───────────────────────────────────────
+let unplannedCompany = null;
+let unplannedFile    = null;
+
+function openUnplannedModal(company) {
+  unplannedCompany = company;
+  unplannedFile    = null;
+
+  const sel = document.getElementById('unplan-type');
+  sel.innerHTML = '<option value="">— выберите тип —</option>';
+  reportTypes.forEach(rt => {
+    const o = document.createElement('option');
+    o.value = rt; o.textContent = rt;
+    sel.appendChild(o);
+  });
+  const oCustom = document.createElement('option');
+  oCustom.value = '__custom__'; oCustom.textContent = 'Другой тип...';
+  sel.appendChild(oCustom);
+
+  document.getElementById('unplan-company-name').textContent = company;
+  document.getElementById('unplan-custom').value = '';
+  document.getElementById('unplan-custom-field').style.display = 'none';
+  document.getElementById('unplan-file-name').textContent = '';
+  document.getElementById('unplan-file-input').value = '';
+  document.getElementById('unplan-date').value = new Date().toISOString().split('T')[0];
+
+  document.getElementById('modal-unplanned').classList.add('active');
+}
+
+function closeUnplannedModal() {
+  document.getElementById('modal-unplanned').classList.remove('active');
+  unplannedCompany = null;
+  unplannedFile    = null;
+}
+
+function toggleCustomType() {
+  const val = document.getElementById('unplan-type').value;
+  document.getElementById('unplan-custom-field').style.display =
+    val === '__custom__' ? 'block' : 'none';
+}
+
+function handleUnplanFile(input) {
+  if (input.files[0]) {
+    unplannedFile = input.files[0];
+    document.getElementById('unplan-file-name').textContent = unplannedFile.name;
+  }
+}
+
+async function submitUnplanned() {
+  const typeVal  = document.getElementById('unplan-type').value;
+  const custom   = document.getElementById('unplan-custom').value.trim();
+  const date     = document.getElementById('unplan-date').value;
+
+  if (!typeVal) { showToast('Выберите тип отчёта', 'error'); return; }
+  if (typeVal === '__custom__' && !custom) { showToast('Введите название', 'error'); return; }
+  if (!date)    { showToast('Укажите дату', 'error'); return; }
+
+  const label      = typeVal === '__custom__' ? custom : typeVal;
+  const reportType = typeVal === '__custom__' ? 'Внеплановый' : typeVal;
+
+  const month = parseInt(document.getElementById('month-sel').value);
+  const year  = parseInt(document.getElementById('year-sel').value);
+
+  let fileData = null, fileName = null, fileType = null;
+  if (unplannedFile) {
+    fileData = await fileToBase64(unplannedFile);
+    fileName = unplannedFile.name;
+    fileType = unplannedFile.type || 'application/octet-stream';
+  }
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'submitReport',
+        team: TEAM_NAMES[currentTeam],
+        company: unplannedCompany,
+        reportType,
+        label,
+        date, fileData, fileName, fileType,
+        month, year,
+        isUnplanned: true
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeUnplannedModal();
+      await loadData();
+      showToast('Внеплановый отчёт сохранён!', 'success');
+    } else {
+      showToast('Ошибка: ' + (data.error || 'неизвестная'), 'error');
+    }
+  } catch(e) {
+    showToast('Ошибка: ' + e.message, 'error');
+  }
+}
+
+document.getElementById('modal-unplanned').addEventListener('click', function(e) {
+  if (e.target === this) closeUnplannedModal();
+});
 </script>
 </body>
 </html>

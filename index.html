@@ -8,21 +8,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0c0c10;
-  --surface: #141418;
-  --surface2: #1c1c22;
-  --border: rgba(255,255,255,0.07);
-  --text: #f0ede8;
-  --muted: #7a7a8a;
-  --accent: #c8f060;
-  --accent2: #60c8f0;
-  --danger: #f06060;
+  --bg:      #F2F1EC;
+  --surface: #FFFFFF;
+  --surface2:#EDECEA;
+  --border:  rgba(30,30,50,0.09);
+  --text:    #1A1828;
+  --muted:   #888898;
+  --accent:  #5561FF;
+  --accent2: #0088CC;
+  --danger:  #D43A3A;
 
-  --orion:  #c8f060;
-  --kepler: #f0c060;
-  --mir:    #60c8f0;
-  --luna:   #c060f0;
-  --admin:  #f06090;
+  --orion:   #3A7A00;
+  --kepler:  #8B5C00;
+  --mir:     #005FA0;
+  --luna:    #6200A0;
+  --admin:   #A0005A;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -37,26 +37,21 @@ body {
   overflow: hidden;
 }
 
-/* Ambient background */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(200,240,96,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(96,200,240,0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 70% 50% at 10% 10%, rgba(85,97,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 90% 90%, rgba(0,136,204,0.05) 0%, transparent 60%);
   pointer-events: none;
 }
-
-/* Grid texture */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image: radial-gradient(circle, rgba(30,30,60,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
   pointer-events: none;
 }
 
@@ -194,7 +189,7 @@ body::after {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(12,12,16,0.85);
+  background: rgba(230,228,222,0.88);
   backdrop-filter: blur(8px);
   z-index: 100;
   align-items: center;
@@ -287,7 +282,7 @@ body::after {
 }
 .btn-primary {
   background: var(--modal-accent, var(--accent));
-  color: #0c0c10;
+  color: #FFFFFF;
 }
 .btn-primary:hover { opacity: 0.85; }
 .btn-secondary {
@@ -332,10 +327,10 @@ body::after {
       <span class="team-name">Мир</span>
       <span class="team-count">14 компаний</span>
     </div>
-    <div class="team-card" style="--team-color: var(--luna)" onclick="openModal('Луна-9','luna',26)">
+    <div class="team-card" style="--team-color: var(--luna)" onclick="openModal('AlphaC','alphac',25)">
       <div class="team-dot"></div>
-      <span class="team-name">Луна-9</span>
-      <span class="team-count">26 компаний</span>
+      <span class="team-name">AlphaC</span>
+      <span class="team-count">25 компаний</span>
     </div>
   </div>
 
@@ -371,17 +366,17 @@ body::after {
 <script>
 // ▼▼▼ ПАРОЛИ — меняйте здесь ▼▼▼
 const PASSWORDS = {
-  orion:  'orion2026@',
-  kepler: 'kepler2026@',
-  mir:    'mir2026!',
-  luna:   'luna2026!',
-  admin:  'contab0140@'
+  orion:   'orion2024',
+  kepler:  'kepler2024',
+  mir:     'mir2024',
+  alphac:  'alphac2024',
+  admin:   'admin2024'
 };
 // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 const COLORS = {
   orion: '#c8f060', kepler: '#f0c060',
-  mir: '#60c8f0', luna: '#c060f0', admin: '#f06090'
+  mir: '#60c8f0', alphac: '#c060f0', admin: '#f06090'
 };
 
 let currentTeam = null;
