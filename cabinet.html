@@ -321,6 +321,38 @@ body::before {
   color: var(--muted);
   font-weight: 300;
 }
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: all 0.18s;
+  font-family: 'Inter', sans-serif;
+}
+.btn-back:hover { color: var(--text); border-color: var(--tc); background: var(--surface); }
+.motivation-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 400;
+}
+.motivation-banner .mot-icon { font-size: 20px; flex-shrink: 0; }
+.motivation-banner .mot-text { line-height: 1.4; }
 
 .reports-grid {
   display: grid;
@@ -853,6 +885,18 @@ async function loadData() {
 }
 
 // ─── Team overview ───────────────────────────────────────────
+function getMotivation(pct, overdue, pending) {
+  if (pct === 100) return { icon: '🏆', text: 'Все отчёты сданы — команда молодец! Отличный результат!' };
+  if (overdue > 0 && pct < 30)  return { icon: '🚨', text: 'Есть просроченные отчёты. Сосредоточимся и наверстаем — вы справитесь!' };
+  if (overdue > 0)               return { icon: '⚡', text: `${overdue} отч. просрочено, но большая часть уже сдана. Финишируем!` };
+  if (pct === 0)                 return { icon: '🚀', text: 'Новый месяц — новые возможности. Начинаем сдавать отчёты!' };
+  if (pct < 25)                  return { icon: '💪', text: 'Хорошее начало! Продолжайте в том же духе — всё идёт по плану.' };
+  if (pct < 50)                  return { icon: '📈', text: 'Четверть пути позади. Набираем темп — так держать!' };
+  if (pct < 75)                  return { icon: '🔥', text: 'Больше половины сдано! Отличный темп, команда выкладывается на полную.' };
+  if (pct < 100)                 return { icon: '🎯', text: `Осталось ${pending} отч. — совсем чуть-чуть до финиша. Не останавливаемся!` };
+  return { icon: '✅', text: 'Хорошая работа!' };
+}
+
 function renderTeamOverview() {
   const month = parseInt(document.getElementById('month-sel').value);
   const year  = parseInt(document.getElementById('year-sel').value);
@@ -920,11 +964,17 @@ function renderTeamOverview() {
       }).join('')
     : '<div class="ov-empty">Нет отчётов с дедлайном в ближайшие 30 дней</div>';
 
+  const mot = getMotivation(pct, overdue, pending);
+
   content.innerHTML = `
     <div class="team-ov">
       <div class="team-ov-header">
         <h2>${TEAM_NAMES[currentTeam]}</h2>
         <p>${monthName} ${year} · ${companies.length} компаний</p>
+      </div>
+      <div class="motivation-banner">
+        <span class="mot-icon">${mot.icon}</span>
+        <span class="mot-text">${mot.text}</span>
       </div>
       <div class="team-ov-kpis">
         <div class="ov-kpi-card">
@@ -983,6 +1033,12 @@ function renderCompanyList() {
 
 function filterCompanies() { renderCompanyList(); }
 
+function goToDashboard() {
+  selectedCompany = null;
+  document.querySelectorAll('.company-item').forEach(el => el.classList.remove('active'));
+  renderTeamOverview();
+}
+
 function selectCompany(name) {
   selectedCompany = name;
   renderCompanyList();
@@ -1001,6 +1057,7 @@ function renderReports(company) {
   const required = getCompanyReports(company);
 
   content.innerHTML = `
+    <button class="btn-back" onclick="goToDashboard()">← Дашборд</button>
     <div class="company-header">
       <h1>${company}</h1>
       <p>${monthName} ${year} · ${required.length} отчётов</p>

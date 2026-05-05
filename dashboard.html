@@ -676,7 +676,6 @@ function parseDeadline(ddmm, month, year) {
   const dlYear = imm < imonth ? iyear + 1 : iyear;
   return new Date(dlYear, imm - 1, idd);
 }
-}
 
 async function loadData() {
   showOverlay(true);
