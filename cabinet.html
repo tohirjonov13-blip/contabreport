@@ -771,7 +771,15 @@ function initMonthSelector() {
     mSel.appendChild(o);
   });
   const now = new Date();
-  mSel.value = now.getMonth() + 1;
+  // До 15-го числа включительно показываем предыдущий месяц (отчёты ещё сдаются за него)
+  const showPrev = now.getDate() <= 15;
+  let month = now.getMonth() + 1; // 1-12
+  let year  = now.getFullYear();
+  if (showPrev) {
+    month -= 1;
+    if (month === 0) { month = 12; year -= 1; }
+  }
+  mSel.value = month;
 
   const curY = now.getFullYear();
   for (let y = curY - 1; y <= curY + 1; y++) {
@@ -779,7 +787,7 @@ function initMonthSelector() {
     o.value = y; o.textContent = y;
     ySel.appendChild(o);
   }
-  ySel.value = curY;
+  ySel.value = year;
 }
 
 async function loadConfig() {
@@ -1077,9 +1085,9 @@ function renderReports(company) {
 }
 
 function formatDate(d) {
-  if (!d) return '';
+  if (!d || (typeof d === 'string' && d.startsWith('#'))) return '';
   const dt = new Date(d);
-  return isNaN(dt) ? d : dt.toLocaleDateString('ru-RU');
+  return isNaN(dt) ? '' : dt.toLocaleDateString('ru-RU');
 }
 
 // ─── Submit Modal ────────────────────────────────────────────
