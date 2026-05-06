@@ -1160,13 +1160,17 @@ async function loadRecalculations() {
 }
 
 function renderRecalculations(rows) {
-  // Группируем по groupId
+  // Группируем по groupId; для старых записей без groupId — каждая строка отдельная группа
   const groups = {};
   rows.forEach(r => {
-    const key = r.groupId || (r.originalReport + '|' + r.company + '|' + r.uploadDate);
+    const key = r.groupId
+      ? r.groupId
+      : `solo_${r.company}|${r.reportType}|${r.uploadDate}|${r.date}`;
     if (!groups[key]) groups[key] = { ...r, files: [] };
     if (r.fileUrl) groups[key].files.push({ url: r.fileUrl, name: r.fileName || 'файл' });
     if (r.comment && !groups[key].comment) groups[key].comment = r.comment;
+    // Для старых записей без originalReport — берём reportType как подсказку
+    if (!groups[key].originalReport && r.originalReport) groups[key].originalReport = r.originalReport;
   });
 
   const list = Object.values(groups).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -1193,7 +1197,7 @@ function renderRecalculations(rows) {
       <td style="white-space:nowrap;font-weight:500">${formatDate(g.date) || '—'}</td>
       <td style="font-weight:500">${esc(g.company)}</td>
       <td><span class="team-badge-sm" style="color:${teamColor(g.team)};background:${teamBg(g.team)}">${esc(g.team)}</span></td>
-      <td style="font-weight:500;color:var(--accent)">${esc(g.originalReport || '—')}</td>
+      <td style="font-weight:500;color:var(--accent)">${esc(g.originalReport || g.reportType || '—')}</td>
       <td class="recalc-comment-cell">${esc(g.comment || '—')}</td>
       <td><div class="recalc-files-cell">${filesHtml}</div></td>
       <td style="white-space:nowrap;color:var(--muted);font-size:12px">${esc(g.uploadDate || '—')}</td>`;
