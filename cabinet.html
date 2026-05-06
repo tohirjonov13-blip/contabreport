@@ -431,6 +431,72 @@ body::before {
 .btn-add-unplanned:hover {
   background: rgba(98,0,160,0.06); border-color: rgba(98,0,160,0.5);
 }
+.btn-add-row {
+  display: flex; gap: 8px; margin: 16px 0 32px;
+}
+.btn-add-row .btn-add-unplanned { margin: 0; flex: 1; }
+.btn-add-row .btn-add-recalc {
+  flex: 1; background: transparent;
+  border: 1px dashed rgba(180,60,0,0.35); color: #B43C00;
+  border-radius: 12px; padding: 12px 20px;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-add-row .btn-add-recalc:hover { background: rgba(180,60,0,0.06); border-color: rgba(180,60,0,0.6); }
+
+/* Комментарий в карточке */
+.card-comment {
+  font-size: 11px; color: var(--muted); margin-top: 6px;
+  line-height: 1.4; font-style: italic;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.card-comment-indicator {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; color: var(--muted); margin-top: 4px;
+}
+.card-files { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.card-file-link {
+  font-size: 11px; color: var(--success); text-decoration: none;
+  background: rgba(27,155,82,0.08); border-radius: 5px; padding: 2px 7px;
+  white-space: nowrap;
+}
+.card-file-link:hover { background: rgba(27,155,82,0.15); }
+.btn-add-comment {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; color: var(--muted); font-family: 'Inter',sans-serif;
+  padding: 0; margin-top: 6px; display: inline-flex; align-items: center; gap: 3px;
+  transition: color 0.15s;
+}
+.btn-add-comment:hover { color: var(--text); }
+
+/* Перерасчёт карточка */
+.recalc-card { border-color: rgba(180,60,0,0.25); background: rgba(180,60,0,0.02); }
+.recalc-tag {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #B43C00;
+  background: rgba(180,60,0,0.08); border: 1px solid rgba(180,60,0,0.2);
+  border-radius: 4px; padding: 2px 6px; margin-left: 6px; vertical-align: middle;
+}
+
+/* Файлы в модале Перерасчёт */
+.recalc-file-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.recalc-file-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 10px; font-size: 12px;
+}
+.recalc-file-item button {
+  background: none; border: none; color: var(--danger);
+  cursor: pointer; font-size: 14px; line-height: 1; padding: 0 2px;
+}
+.field textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 11px 14px; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+  transition: border-color 0.2s; resize: vertical; min-height: 72px;
+}
+.field textarea:focus { border-color: var(--tc); }
 
 /* Submit Modal */
 .modal-backdrop {
@@ -683,6 +749,11 @@ body::before {
       </div>
     </div>
 
+    <div class="field">
+      <label>Комментарий <span style="color:var(--muted);font-weight:300;text-transform:none;letter-spacing:0">(необязательно)</span></label>
+      <textarea id="report-comment" placeholder="Например: отчёт сдан с корректировкой..."></textarea>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
       <button class="btn btn-primary" id="submit-btn" onclick="submitReport()">
@@ -734,6 +805,71 @@ body::before {
   </div>
 </div>
 
+<!-- Модал: Добавить комментарий -->
+<div class="modal-backdrop" id="modal-add-comment">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-top-bar" style="background:var(--tc)"></div>
+    <h2>Добавить комментарий</h2>
+    <p id="add-comment-target" style="font-size:13px;color:var(--muted);margin-bottom:18px;font-weight:300"></p>
+    <div class="field">
+      <label>Комментарий</label>
+      <textarea id="add-comment-text" placeholder="Введите комментарий..." style="min-height:80px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeAddCommentModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="submitAddComment()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модал: Перерасчёт -->
+<div class="modal-backdrop" id="modal-recalc">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-top-bar" style="background:#B43C00"></div>
+    <h2>Перерасчёт</h2>
+    <p id="recalc-company-name" style="font-size:13px;color:var(--muted);margin-bottom:20px;font-weight:300"></p>
+
+    <div class="field">
+      <label>Какой отчёт был пересдан</label>
+      <select id="recalc-orig-type" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none" onchange="toggleRecalcCustom()">
+        <option value="">— выберите отчёт —</option>
+      </select>
+    </div>
+    <div class="field" id="recalc-custom-field" style="display:none">
+      <label>Название отчёта</label>
+      <input type="text" id="recalc-custom-orig" placeholder="Введите название отчёта">
+    </div>
+
+    <div class="field">
+      <label>Дата перерасчёта</label>
+      <input type="date" id="recalc-date" style="color-scheme:light">
+    </div>
+
+    <div class="field">
+      <label>Комментарий <span style="color:var(--danger)">*</span></label>
+      <textarea id="recalc-comment" placeholder="Причина и суть перерасчёта..." style="min-height:80px"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Документы <span style="color:var(--muted);font-weight:300;text-transform:none;letter-spacing:0">(необязательно, до 10 файлов)</span></label>
+      <div class="file-zone" onclick="document.getElementById('recalc-file-input').click()" style="padding:18px">
+        <input type="file" id="recalc-file-input" multiple style="display:none" onchange="handleRecalcFiles(this)">
+        <div class="file-zone-icon">📎</div>
+        <div class="file-zone-text">Нажмите чтобы добавить файлы</div>
+      </div>
+      <div class="recalc-file-list" id="recalc-file-list"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeRecalcModal()">Отмена</button>
+      <button class="btn btn-primary" style="background:#B43C00" id="recalc-submit-btn" onclick="submitRecalc()">
+        <span id="recalc-submit-label">Отправить</span>
+        <div class="spinner" id="recalc-submit-spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
@@ -766,6 +902,7 @@ let reportTypes      = [];
 let reportMatrix     = {};
 let deadlineCalendar = {};
 let records = {};
+let recalculations = []; // строки с originalReport — Перерасчёты
 let selectedCompany = null;
 let selectedReport = null;
 let selectedFile = null;
@@ -871,8 +1008,13 @@ async function loadData() {
     const res = await fetchWithTimeout(`${API_URL}?action=getData&team=${TEAM_NAMES[currentTeam]}&month=${month}&year=${year}`);
     const data = await res.json();
     records = {};
+    recalculations = [];
     (data.records || []).forEach(r => {
-      records[`${r.company}|${r.reportType}`] = r;
+      if (r.originalReport) {
+        recalculations.push(r);  // Перерасчёты — в отдельный массив
+      } else {
+        records[`${r.company}|${r.reportType}`] = r;
+      }
     });
     renderCompanyList();
     if (selectedCompany) renderReports(selectedCompany);
@@ -1095,21 +1237,27 @@ function renderReports(company) {
 
     const card = document.createElement('div');
     card.className = 'report-card' + (isSubmitted ? ' submitted' : '');
+    const commentHtml = (isSubmitted && rec.comment)
+      ? `<div class="card-comment">💬 ${escHtml(rec.comment)}</div>`
+      : '';
+    const fileHtml = (isSubmitted && rec.fileUrl)
+      ? `<div class="card-files"><a class="card-file-link" href="${rec.fileUrl}" target="_blank">📎 ${escHtml(rec.fileName || 'файл')}</a></div>`
+      : '';
+    const addCommentHtml = isSubmitted
+      ? `<button class="btn-add-comment" onclick="event.stopPropagation();openAddCommentModal('${escAttr(company)}','${escAttr(rt)}')">+ комментарий</button>`
+      : '';
     card.innerHTML = `
       <div class="report-name">${rt}</div>
       <div class="report-deadline ${deadlineClass}">${deadlineLabel}</div>
       <div class="report-status ${isSubmitted ? 'done' : 'pending'}">
-        ${isSubmitted
-          ? `<a href="${rec.fileUrl || '#'}" target="_blank" style="color:var(--success);text-decoration:none" title="Открыть файл">
-              Сдан ${formatDate(rec.date)}
-             </a>`
-          : 'Ожидает отправки'}
-      </div>`;
+        ${isSubmitted ? `Сдан ${formatDate(rec.date)}` : 'Ожидает отправки'}
+      </div>
+      ${fileHtml}${commentHtml}${addCommentHtml}`;
     card.onclick = () => openModal(company, rt, rec);
     grid.appendChild(card);
   });
 
-  // Внеплановые отчёты
+  // Внеплановые отчёты (без перерасчётов)
   const unplanned = Object.values(records).filter(r => r.company === company && (r.isUnplanned === true || r.isUnplanned === 'да'));
   if (unplanned.length) {
     const upHeader = document.createElement('div');
@@ -1122,23 +1270,69 @@ function renderReports(company) {
     unplanned.forEach(r => {
       const card = document.createElement('div');
       card.className = 'report-card submitted unplanned-card';
+      const cHtml = r.comment ? `<div class="card-comment">💬 ${escHtml(r.comment)}</div>` : '';
+      const fHtml = r.fileUrl ? `<div class="card-files"><a class="card-file-link" href="${r.fileUrl}" target="_blank">📎 ${escHtml(r.fileName||'файл')}</a></div>` : '';
+      const acHtml = `<button class="btn-add-comment" onclick="event.stopPropagation();openAddCommentModal('${escAttr(company)}','${escAttr(r.reportType)}')">+ комментарий</button>`;
       card.innerHTML = `
         <div class="report-name">${r.reportType} <span class="unplanned-tag">внеплановый</span></div>
-        <div class="report-status done">
-          <a href="${r.fileUrl || '#'}" target="_blank" style="color:var(--success);text-decoration:none">
-            Сдан ${formatDate(r.date)}
-          </a>
-        </div>`;
+        <div class="report-status done">Сдан ${formatDate(r.date)}</div>
+        ${fHtml}${cHtml}${acHtml}`;
       upGrid.appendChild(card);
     });
     content.appendChild(upGrid);
   }
 
-  const addBtn = document.createElement('button');
-  addBtn.className = 'btn-add-unplanned';
-  addBtn.innerHTML = '+ Внеплановый отчёт';
-  addBtn.onclick = () => openUnplannedModal(company);
-  content.appendChild(addBtn);
+  // Перерасчёты — сгруппированные по groupId
+  const companyRecalcs = recalculations.filter(r => r.company === company);
+  if (companyRecalcs.length) {
+    const rcHeader = document.createElement('div');
+    rcHeader.className = 'unplanned-header';
+    rcHeader.innerHTML = 'Перерасчёты <span class="recalc-tag">перерасчёт</span>';
+    content.appendChild(rcHeader);
+
+    const rcGrid = document.createElement('div');
+    rcGrid.className = 'reports-grid';
+
+    // Группируем по groupId (или по uploadDate если groupId пуст)
+    const groups = {};
+    companyRecalcs.forEach(r => {
+      const key = r.groupId || (r.originalReport + '|' + r.uploadDate);
+      if (!groups[key]) groups[key] = { ...r, files: [] };
+      if (r.fileUrl) groups[key].files.push({ url: r.fileUrl, name: r.fileName || 'файл' });
+      if (r.comment && !groups[key].comment) groups[key].comment = r.comment;
+      if (!groups[key].originalReport && r.originalReport) groups[key].originalReport = r.originalReport;
+    });
+
+    Object.values(groups).forEach(g => {
+      const card = document.createElement('div');
+      card.className = 'report-card submitted recalc-card';
+      const filesHtml = g.files.length
+        ? `<div class="card-files">${g.files.map(f=>`<a class="card-file-link" href="${f.url}" target="_blank">📎 ${escHtml(f.name)}</a>`).join('')}</div>`
+        : '';
+      const cHtml = g.comment ? `<div class="card-comment">💬 ${escHtml(g.comment)}</div>` : '';
+      card.innerHTML = `
+        <div class="report-name">Перерасчёт <span class="recalc-tag">→ ${escHtml(g.originalReport||'')}</span></div>
+        <div class="report-status done">Сдан ${formatDate(g.date)}</div>
+        ${filesHtml}${cHtml}`;
+      rcGrid.appendChild(card);
+    });
+    content.appendChild(rcGrid);
+  }
+
+  // Кнопки добавления
+  const addRow = document.createElement('div');
+  addRow.className = 'btn-add-row';
+  const btnUnplan = document.createElement('button');
+  btnUnplan.className = 'btn-add-unplanned';
+  btnUnplan.textContent = '+ Внеплановый отчёт';
+  btnUnplan.onclick = () => openUnplannedModal(company);
+  const btnRecalc = document.createElement('button');
+  btnRecalc.className = 'btn-add-recalc';
+  btnRecalc.textContent = '🔄 Перерасчёт';
+  btnRecalc.onclick = () => openRecalcModal(company);
+  addRow.appendChild(btnUnplan);
+  addRow.appendChild(btnRecalc);
+  content.appendChild(addRow);
 }
 
 function formatDate(d) {
@@ -1155,6 +1349,7 @@ function openModal(company, reportType, existing) {
   document.getElementById('modal-company-name').textContent = company;
   document.getElementById('file-name-display').textContent = '';
   document.getElementById('file-input').value = '';
+  document.getElementById('report-comment').value = '';
 
   const fmt = d => d.toISOString().split('T')[0];
   document.getElementById('report-date').value = existing?.date
@@ -1167,6 +1362,7 @@ function openModal(company, reportType, existing) {
 function closeModal() {
   document.getElementById('modal').classList.remove('active');
   selectedFile = null;
+  document.getElementById('report-comment').value = '';
 }
 
 document.getElementById('modal').addEventListener('click', function(e) {
@@ -1212,6 +1408,8 @@ async function submitReport() {
     const month = document.getElementById('month-sel').value;
     const year  = document.getElementById('year-sel').value;
 
+    const comment = (document.getElementById('report-comment').value || '').trim();
+
     const body = {
       action: 'submitReport',
       team: TEAM_NAMES[currentTeam],
@@ -1221,12 +1419,11 @@ async function submitReport() {
       fileData,
       fileName,
       fileType,
+      comment,
       month: parseInt(month),
       year: parseInt(year)
     };
 
-    // mode:'no-cors' — единственный способ отправить POST к Apps Script с GitHub Pages.
-    // Ответ будет opaque (нечитаемый), поэтому обновляем данные перезагрузкой.
     await fetch(API_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -1234,11 +1431,11 @@ async function submitReport() {
       body: JSON.stringify(body)
     });
 
-    // Оптимистично обновляем UI сразу
     records[`${selectedCompany}|${selectedReport}`] = {
       company: selectedCompany, team: TEAM_NAMES[currentTeam],
       reportType: selectedReport, date,
-      fileUrl: '', fileName: fileName || '', isUnplanned: false
+      fileUrl: '', fileName: fileName || '', isUnplanned: false,
+      comment
     };
     closeModal();
     renderReports(selectedCompany);
@@ -1382,6 +1579,204 @@ async function submitUnplanned() {
 document.getElementById('modal-unplanned').addEventListener('click', function(e) {
   if (e.target === this) closeUnplannedModal();
 });
+document.getElementById('modal-add-comment').addEventListener('click', function(e) {
+  if (e.target === this) closeAddCommentModal();
+});
+document.getElementById('modal-recalc').addEventListener('click', function(e) {
+  if (e.target === this) closeRecalcModal();
+});
+
+// ─── Добавить комментарий к существующему отчёту ─────────────
+let addCommentCompany = null;
+let addCommentReportType = null;
+
+function openAddCommentModal(company, reportType) {
+  addCommentCompany    = company;
+  addCommentReportType = reportType;
+  document.getElementById('add-comment-target').textContent = company + ' · ' + reportType;
+  document.getElementById('add-comment-text').value = '';
+  document.getElementById('modal-add-comment').classList.add('active');
+  setTimeout(() => document.getElementById('add-comment-text').focus(), 100);
+}
+
+function closeAddCommentModal() {
+  document.getElementById('modal-add-comment').classList.remove('active');
+  addCommentCompany = addCommentReportType = null;
+}
+
+async function submitAddComment() {
+  const text = document.getElementById('add-comment-text').value.trim();
+  if (!text) { showToast('Введите комментарий', 'error'); return; }
+
+  const month = document.getElementById('month-sel').value;
+  const year  = document.getElementById('year-sel').value;
+
+  closeAddCommentModal();
+  showToast('Комментарий сохраняется…', 'success');
+
+  fetch(API_URL, {
+    method: 'POST', mode: 'no-cors', credentials: 'omit',
+    body: JSON.stringify({
+      action: 'addComment',
+      company: addCommentCompany,
+      reportType: addCommentReportType,
+      newComment: text,
+      month: parseInt(month),
+      year: parseInt(year)
+    })
+  });
+
+  // Оптимистично добавляем к локальной записи
+  const key = `${addCommentCompany}|${addCommentReportType}`;
+  if (records[key]) {
+    const ts = new Date().toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    records[key].comment = records[key].comment
+      ? records[key].comment + '\n[' + ts + '] ' + text
+      : '[' + ts + '] ' + text;
+    if (selectedCompany) renderReports(selectedCompany);
+  }
+  setTimeout(() => loadData(), 4000);
+}
+
+// ─── Перерасчёт ───────────────────────────────────────────────
+let recalcCompany = null;
+let recalcFiles   = [];
+
+function openRecalcModal(company) {
+  recalcCompany = company;
+  recalcFiles   = [];
+
+  const sel = document.getElementById('recalc-orig-type');
+  sel.innerHTML = '<option value="">— выберите отчёт —</option>';
+  const companyReports = getCompanyReports(company);
+  companyReports.forEach(rt => {
+    const o = document.createElement('option');
+    o.value = rt; o.textContent = rt;
+    sel.appendChild(o);
+  });
+  const oOther = document.createElement('option');
+  oOther.value = '__other__'; oOther.textContent = 'Другой...';
+  sel.appendChild(oOther);
+
+  document.getElementById('recalc-company-name').textContent = company;
+  document.getElementById('recalc-custom-field').style.display = 'none';
+  document.getElementById('recalc-custom-orig').value = '';
+  document.getElementById('recalc-comment').value = '';
+  document.getElementById('recalc-file-list').innerHTML = '';
+  document.getElementById('recalc-file-input').value = '';
+  document.getElementById('recalc-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-recalc').classList.add('active');
+}
+
+function closeRecalcModal() {
+  document.getElementById('modal-recalc').classList.remove('active');
+  recalcCompany = null;
+  recalcFiles   = [];
+}
+
+function toggleRecalcCustom() {
+  const val = document.getElementById('recalc-orig-type').value;
+  document.getElementById('recalc-custom-field').style.display = val === '__other__' ? 'block' : 'none';
+}
+
+function handleRecalcFiles(input) {
+  const added = Array.from(input.files);
+  added.forEach(f => {
+    if (recalcFiles.length >= 10) return;
+    recalcFiles.push(f);
+  });
+  input.value = '';
+  renderRecalcFileList();
+}
+
+function renderRecalcFileList() {
+  const list = document.getElementById('recalc-file-list');
+  list.innerHTML = '';
+  recalcFiles.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'recalc-file-item';
+    item.innerHTML = `<span>📎 ${escHtml(f.name)}</span><button onclick="removeRecalcFile(${i})">✕</button>`;
+    list.appendChild(item);
+  });
+}
+
+function removeRecalcFile(idx) {
+  recalcFiles.splice(idx, 1);
+  renderRecalcFileList();
+}
+
+async function submitRecalc() {
+  const typeVal  = document.getElementById('recalc-orig-type').value;
+  const custom   = document.getElementById('recalc-custom-orig').value.trim();
+  const comment  = document.getElementById('recalc-comment').value.trim();
+  const date     = document.getElementById('recalc-date').value;
+
+  if (!typeVal) { showToast('Выберите пересданный отчёт', 'error'); return; }
+  if (typeVal === '__other__' && !custom) { showToast('Введите название отчёта', 'error'); return; }
+  if (!comment)  { showToast('Комментарий обязателен для перерасчёта', 'error'); return; }
+  if (!date)     { showToast('Укажите дату', 'error'); return; }
+
+  const originalReport = typeVal === '__other__' ? custom : typeVal;
+  const groupId = 'grp_' + Date.now();
+  const month = parseInt(document.getElementById('month-sel').value);
+  const year  = parseInt(document.getElementById('year-sel').value);
+
+  // Кодируем все файлы
+  const btn = document.getElementById('recalc-submit-btn');
+  document.getElementById('recalc-submit-label').style.display = 'none';
+  document.getElementById('recalc-submit-spinner').style.display = 'block';
+  btn.disabled = true;
+
+  try {
+    const files = [];
+    for (const f of recalcFiles) {
+      const fd = await fileToBase64(f);
+      files.push({ fileData: fd, fileName: f.name, fileType: f.type || 'application/octet-stream' });
+    }
+
+    await fetch(API_URL, {
+      method: 'POST', mode: 'no-cors', credentials: 'omit',
+      body: JSON.stringify({
+        action: 'submitReport',
+        team: TEAM_NAMES[currentTeam],
+        company: recalcCompany,
+        reportType: 'Перерасчет',
+        date, comment, originalReport, groupId,
+        files,
+        month, year,
+        isUnplanned: true
+      })
+    });
+
+    // Оптимистичное обновление
+    recalculations.push({
+      company: recalcCompany, team: TEAM_NAMES[currentTeam],
+      reportType: 'Перерасчет', date, comment, originalReport, groupId,
+      fileUrl: '', fileName: '', isUnplanned: 'да',
+      files: files.map(f => ({ url: '', name: f.fileName }))
+    });
+
+    closeRecalcModal();
+    renderReports(recalcCompany);
+    renderCompanyList();
+    showToast('Перерасчёт отправлен — синхронизируем…', 'success');
+    setTimeout(() => loadData(), 4000);
+  } catch(e) {
+    showToast('Ошибка: ' + e.message, 'error');
+  } finally {
+    document.getElementById('recalc-submit-label').style.display = 'inline';
+    document.getElementById('recalc-submit-spinner').style.display = 'none';
+    btn.disabled = false;
+  }
+}
+
+// ─── Утилиты ─────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s || '').replace(/'/g, "\\'").replace(/\n/g, ' ');
+}
 </script>
 </body>
 </html>

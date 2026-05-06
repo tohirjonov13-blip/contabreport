@@ -338,6 +338,74 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Settings panel */
+/* Вкладки Отчёты / Перерасчёты */
+.view-tabs {
+  display: flex; align-items: center; gap: 4px;
+  padding: 0 24px; margin-bottom: -1px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.view-tab {
+  padding: 10px 18px; font-size: 13px; font-weight: 500;
+  border: none; background: none; cursor: pointer;
+  color: var(--muted); font-family: 'Inter', sans-serif;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all 0.18s;
+}
+.view-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.view-tab:hover:not(.active) { color: var(--text); }
+.recalc-period-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 24px; border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.recalc-period-bar label { font-size: 12px; color: var(--muted); font-weight: 500; }
+.recalc-period-bar select {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 10px;
+  font-size: 13px; font-family: 'Inter', sans-serif;
+  color: var(--text); outline: none; cursor: pointer;
+}
+.recalc-period-bar button {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 13px; font-family: 'Inter', sans-serif;
+  cursor: pointer; font-weight: 500;
+}
+.recalc-panel { display: none; padding: 20px 24px; }
+.recalc-panel.active { display: block; }
+.recalc-table-wrap { overflow-x: auto; }
+.recalc-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.recalc-table th {
+  text-align: left; padding: 10px 12px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.recalc-table td {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  vertical-align: top; max-width: 220px;
+}
+.recalc-table tr:hover td { background: var(--surface); }
+.recalc-comment-cell {
+  font-size: 12px; color: var(--muted); max-width: 240px;
+  white-space: pre-wrap; word-break: break-word;
+}
+.recalc-files-cell { display: flex; flex-direction: column; gap: 4px; }
+.recalc-file-a {
+  font-size: 12px; color: var(--success); text-decoration: none;
+  white-space: nowrap;
+}
+.recalc-file-a:hover { text-decoration: underline; }
+.recalc-empty { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+.team-badge-sm {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+}
+
 .settings-panel {
   display: none;
   position: fixed; top: 60px; right: 0; bottom: 0;
@@ -531,25 +599,66 @@ tbody tr:hover td:nth-child(2) { background: var(--surface); }
   <div class="upcoming-list" id="upcoming-list"></div>
 </div>
 
-<!-- Filters -->
-<div class="filters-bar">
-  <span class="filter-label">Команда:</span>
-  <div class="team-filter" id="team-filters">
-    <button class="team-pill active" style="--pill-color:var(--text)" data-team="all" onclick="setTeam('all',this)">Все</button>
-    <button class="team-pill" style="--pill-color:var(--orion)"  data-team="Орион"  onclick="setTeam('Орион',this)">Орион</button>
-    <button class="team-pill" style="--pill-color:var(--kepler)" data-team="Кеплер" onclick="setTeam('Кеплер',this)">Кеплер</button>
-    <button class="team-pill" style="--pill-color:var(--mir)"    data-team="Мир"    onclick="setTeam('Мир',this)">Мир</button>
-    <button class="team-pill" style="--pill-color:var(--luna)"   data-team="AlphaC" onclick="setTeam('AlphaC',this)">AlphaC</button>
-  </div>
-  <input class="search-filter" type="text" placeholder="Поиск компании..." id="search" oninput="renderTable()">
+<!-- View Tabs -->
+<div class="view-tabs">
+  <button class="view-tab active" id="tab-reports"  onclick="switchView('reports')">Отчёты</button>
+  <button class="view-tab"        id="tab-recalcs"  onclick="switchView('recalcs')">Перерасчёты</button>
 </div>
 
-<!-- Table -->
-<div class="table-wrap">
-  <table id="report-table">
-    <thead id="thead"></thead>
-    <tbody id="tbody"></tbody>
-  </table>
+<!-- Reports view -->
+<div id="view-reports">
+  <!-- Filters -->
+  <div class="filters-bar">
+    <span class="filter-label">Команда:</span>
+    <div class="team-filter" id="team-filters">
+      <button class="team-pill active" style="--pill-color:var(--text)" data-team="all" onclick="setTeam('all',this)">Все</button>
+      <button class="team-pill" style="--pill-color:var(--orion)"  data-team="Орион"  onclick="setTeam('Орион',this)">Орион</button>
+      <button class="team-pill" style="--pill-color:var(--kepler)" data-team="Кеплер" onclick="setTeam('Кеплер',this)">Кеплер</button>
+      <button class="team-pill" style="--pill-color:var(--mir)"    data-team="Мир"    onclick="setTeam('Мир',this)">Мир</button>
+      <button class="team-pill" style="--pill-color:var(--luna)"   data-team="AlphaC" onclick="setTeam('AlphaC',this)">AlphaC</button>
+    </div>
+    <input class="search-filter" type="text" placeholder="Поиск компании..." id="search" oninput="renderTable()">
+  </div>
+  <!-- Table -->
+  <div class="table-wrap">
+    <table id="report-table">
+      <thead id="thead"></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Recalculations view -->
+<div id="view-recalcs" style="display:none">
+  <div class="recalc-period-bar">
+    <label>Период:</label>
+    <select id="recalc-period">
+      <option value="1">Текущий месяц</option>
+      <option value="3">3 месяца</option>
+      <option value="6">6 месяцев</option>
+      <option value="12">12 месяцев</option>
+    </select>
+    <button onclick="loadRecalculations()">Загрузить</button>
+    <span style="font-size:12px;color:var(--muted)" id="recalc-count"></span>
+  </div>
+  <div class="recalc-panel active" id="recalc-panel">
+    <div class="recalc-table-wrap">
+      <table class="recalc-table">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Компания</th>
+            <th>Команда</th>
+            <th>Пересданный отчёт</th>
+            <th>Комментарий</th>
+            <th>Файлы</th>
+            <th>Загружено</th>
+          </tr>
+        </thead>
+        <tbody id="recalc-tbody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <!-- Settings Panel -->
@@ -768,9 +877,12 @@ function renderTable() {
 
           const dateStr = formatDate(rec.date);
           const href = rec.fileUrl ? `href="${rec.fileUrl}" target="_blank"` : '';
+          const commentTip = rec.comment ? ` title="${String(rec.comment).replace(/"/g,'&quot;')}"` : '';
+          const commentIcon = rec.comment ? `<span style="font-size:10px;color:var(--muted)" title="${String(rec.comment).replace(/"/g,'&quot;')}">💬</span>` : '';
           return `<td><div class="cell"><div class="cell-done">
             <a class="cell-date ${overdue ? 'overdue' : ''}" ${href} title="${rec.fileName || ''}">${dateStr}</a>
             ${rec.fileUrl ? `<div class="cell-file-icon">⬡ файл</div>` : ''}
+            ${commentIcon}
           </div></div></td>`;
         }).join('')}`;
       tbody.appendChild(tr);
@@ -994,6 +1106,98 @@ function showOverlay(show) {
 function logout() {
   sessionStorage.clear();
   window.location.href = 'index.html';
+}
+
+// ─── View switcher ────────────────────────────────────────────
+let currentView = 'reports';
+
+function switchView(view) {
+  currentView = view;
+  document.getElementById('view-reports').style.display = view === 'reports' ? '' : 'none';
+  document.getElementById('view-recalcs').style.display = view === 'recalcs' ? '' : 'none';
+  document.getElementById('tab-reports').classList.toggle('active', view === 'reports');
+  document.getElementById('tab-recalcs').classList.toggle('active', view === 'recalcs');
+  if (view === 'recalcs' && document.getElementById('recalc-tbody').children.length === 0) {
+    loadRecalculations();
+  }
+}
+
+// ─── Перерасчёты ─────────────────────────────────────────────
+const TEAM_COLORS_HEX = {
+  'Орион': '#3A7A00', 'Кеплер': '#8B5C00', 'Мир': '#005FA0', 'AlphaC': '#6200A0'
+};
+const TEAM_BG_HEX = {
+  'Орион': 'rgba(58,122,0,0.08)', 'Кеплер': 'rgba(139,92,0,0.08)',
+  'Мир': 'rgba(0,95,160,0.08)',   'AlphaC': 'rgba(98,0,160,0.08)'
+};
+
+async function loadRecalculations() {
+  const months = parseInt(document.getElementById('recalc-period').value) || 1;
+  const now    = new Date();
+  const toM    = now.getMonth() + 1;
+  const toY    = now.getFullYear();
+  let   fromM  = toM - months + 1;
+  let   fromY  = toY;
+  while (fromM <= 0) { fromM += 12; fromY--; }
+
+  document.getElementById('recalc-count').textContent = 'Загрузка…';
+  try {
+    const res  = await fetchWithTimeout(
+      `${API_URL}?action=getRecalculations&monthFrom=${fromM}&yearFrom=${fromY}&monthTo=${toM}&yearTo=${toY}`
+    );
+    const data = await res.json();
+    renderRecalculations(data.records || []);
+  } catch(e) {
+    document.getElementById('recalc-count').textContent = 'Ошибка загрузки';
+  }
+}
+
+function renderRecalculations(rows) {
+  // Группируем по groupId
+  const groups = {};
+  rows.forEach(r => {
+    const key = r.groupId || (r.originalReport + '|' + r.company + '|' + r.uploadDate);
+    if (!groups[key]) groups[key] = { ...r, files: [] };
+    if (r.fileUrl) groups[key].files.push({ url: r.fileUrl, name: r.fileName || 'файл' });
+    if (r.comment && !groups[key].comment) groups[key].comment = r.comment;
+  });
+
+  const list = Object.values(groups).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const tbody = document.getElementById('recalc-tbody');
+  tbody.innerHTML = '';
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="recalc-empty">Перерасчётов за выбранный период не найдено</td></tr>';
+    document.getElementById('recalc-count').textContent = '0 перерасчётов';
+    return;
+  }
+
+  const teamColor = t => TEAM_COLORS_HEX[t] || '#888';
+  const teamBg    = t => TEAM_BG_HEX[t]   || 'rgba(0,0,0,0.04)';
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  list.forEach(g => {
+    const tr = document.createElement('tr');
+    const filesHtml = g.files.length
+      ? g.files.map(f => `<a class="recalc-file-a" href="${f.url}" target="_blank">📎 ${esc(f.name)}</a>`).join('')
+      : '<span style="color:var(--muted);font-size:12px">—</span>';
+
+    tr.innerHTML = `
+      <td style="white-space:nowrap;font-weight:500">${formatDate(g.date) || '—'}</td>
+      <td style="font-weight:500">${esc(g.company)}</td>
+      <td><span class="team-badge-sm" style="color:${teamColor(g.team)};background:${teamBg(g.team)}">${esc(g.team)}</span></td>
+      <td style="font-weight:500;color:var(--accent)">${esc(g.originalReport || '—')}</td>
+      <td class="recalc-comment-cell">${esc(g.comment || '—')}</td>
+      <td><div class="recalc-files-cell">${filesHtml}</div></td>
+      <td style="white-space:nowrap;color:var(--muted);font-size:12px">${esc(g.uploadDate || '—')}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('recalc-count').textContent = list.length + ' перерасчётов';
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 </script>
 </body>
